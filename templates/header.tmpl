@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2025 Radford Election</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="/icon.png">
@@ -13,10 +13,33 @@
     <script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq" crossorigin="anonymous"></script>
 </head>
 <body>
-<div class="content">
-    <div class="navbar">
-        <a href="/"><img src="/icon.png" alt="Logo"></a>
-        <a href="/">Candidates</a>
-        <a href="/standings">Standings</a>
+<div class="navbar bg-base-100">
+    <div class="flex-1">
+        <a><img src="icon.png" alt="Logo" class="max-h-12"></a>
     </div>
+    <div class="flex-none gap-2">
+        <div class="flex-none">
+            <ul class="menu menu-horizontal px-1">
+                <li><a>Candidates</a></li>
+                <li><a>FAQ</a></li>
+            </ul>
+        </div>
+        <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                <div class="w-10 rounded-full">
+                    <img
+                            alt="Profile Picture"
+                            src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+                </div>
+            </div>
+            <ul
+                    tabindex="0"
+                    class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+                <li><a>Profile</a></li>
+                <li><a>Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="content">
 {{ end }}

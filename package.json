@@ -1,0 +1,20 @@
+{
+  "name": "openelect",
+  "version": "1.0.0",
+  "description": "",
+  "main": "tailwind.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wenbang24/OpenElect.git"
+  },
+  "private": true,
+  "dependencies": {
+    "daisyui": "^4.12.14"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.15"
+  }
+}

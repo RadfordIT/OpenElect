@@ -9,7 +9,7 @@ import (
 func main() {
 	r := gin.Default()
 	r.StaticFile("/favicon.ico", "./static/favicon.ico")
-	r.StaticFile("/style.css", "./css/style.css")
+	r.StaticFile("/style.css", "./css/output.css")
 	r.StaticFile("/icon.png", "./static/icon.png")
 	r.LoadHTMLGlob("templates/*")
 	r.GET("/", func(c *gin.Context) {

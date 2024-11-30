@@ -1,9 +1,13 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ["./src/**/*.{html,js}"],
+/*eslint-env node*/
+import daisyui from "daisyui"
+export default {
+  content: ["./templates/**/*.tmpl"],
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+      daisyui,
+  ],
 }
 
