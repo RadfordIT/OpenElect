@@ -3,6 +3,7 @@
 import daisyui from "daisyui"
 export default {
   content: ["./templates/**/*.tmpl"],
+  darkMode: 'selector',
   theme: {
     extend: {},
   },
