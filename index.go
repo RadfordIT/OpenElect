@@ -9,13 +9,6 @@ import (
 	"os"
 )
 
-type Candidate struct {
-	Name          string   `json:"name"`
-	Keywords      []string `json:"keywords"`
-	HookStatement string   `json:"hookstatement"`
-	Description   string   `json:"description"`
-}
-
 func index() {
 	err := godotenv.Load()
 	if err != nil {

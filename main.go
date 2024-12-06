@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
-	"github.com/joho/godotenv"
 	"github.com/typesense/typesense-go/v2/typesense"
 	"github.com/typesense/typesense-go/v2/typesense/api"
 	"github.com/typesense/typesense-go/v2/typesense/api/pointer"
@@ -13,6 +12,13 @@ import (
 	"net/http"
 	"os"
 )
+
+type Candidate struct {
+	Name          string   `json:"name"`
+	Keywords      []string `json:"keywords"`
+	HookStatement string   `json:"hookstatement"`
+	Description   string   `json:"description"`
+}
 
 func toStringSlice(input []interface{}) []string {
 	output := make([]string, len(input))
@@ -23,10 +29,10 @@ func toStringSlice(input []interface{}) []string {
 }
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// log.Fatal("Error loading .env file")
+	// }
 
 	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
@@ -36,7 +42,7 @@ func main() {
 	defer conn.Close(context.Background())
 
 	client := typesense.NewClient(
-		typesense.WithServer("http://localhost:8108"),
+		typesense.WithServer(os.Getenv("TYPESENSE_URL")),
 		typesense.WithAPIKey(os.Getenv("TYPESENSE_API_KEY")))
 	schema := &api.CollectionSchema{
 		Name: "candidates",
