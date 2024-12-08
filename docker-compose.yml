@@ -15,6 +15,11 @@ services:
     depends_on:
       - postgres
       - typesense
+    develop:
+      watch:
+        - action: rebuild
+          path: "**/*.go"
+
 
   postgres:
     image: "postgres:17"

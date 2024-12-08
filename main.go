@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/typesense/typesense-go/v2/typesense"
 	"github.com/typesense/typesense-go/v2/typesense/api"
 	"github.com/typesense/typesense-go/v2/typesense/api/pointer"
@@ -34,12 +34,12 @@ func main() {
 	// log.Fatal("Error loading .env file")
 	// }
 
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
-	defer conn.Close(context.Background())
+	defer dbpool.Close()
 
 	client := typesense.NewClient(
 		typesense.WithServer(os.Getenv("TYPESENSE_URL")),
@@ -108,6 +108,10 @@ func main() {
 	})
 	r.GET("/:candidate", func(c *gin.Context) {
 		name := c.Param("candidate")
+		var description string
+		var hookstatement string
+		err = dbpool.QueryRow(context.Background(), "SELECT name FROM candidates WHERE name = $1", name).Scan(&description, &hookstatement)
+		fmt.Println(description, hookstatement)
 		c.HTML(http.StatusOK, "candidate.tmpl", gin.H{
 			"name": name,
 		})
