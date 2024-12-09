@@ -2,18 +2,12 @@ package main
 
 import (
 	"context"
-	"github.com/joho/godotenv"
 	"github.com/typesense/typesense-go/v2/typesense"
 	"github.com/typesense/typesense-go/v2/typesense/api"
-	"log"
 	"os"
 )
 
 func index() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
 	client := typesense.NewClient(
 		typesense.WithServer("http://localhost:8108"),
 		typesense.WithAPIKey(os.Getenv("TYPESENSE_API_KEY")))
