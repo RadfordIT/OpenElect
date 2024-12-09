@@ -1,0 +1,27 @@
+{{ template "header.tmpl" }}
+<form method="post" enctype="multipart/form-data">
+    <label class="form-control">
+        <div class="label">
+            <span class="label-text">Your bio</span>
+            <span class="label-text-alt">Alt label</span>
+        </div>
+        <div class="editorcontainer">
+            <div id="toolbar"></div>
+            <textarea class="textarea textarea-bordered h-24" placeholder="Bio" id="editor"></textarea>
+        </div>
+        <div class="label">
+            <span class="label-text-alt">Your bio</span>
+            <span class="label-text-alt">Alt label</span>
+        </div>
+    </label>
+    <input type="file" class="dropzone" />
+</form>
+<script type="text/javascript">
+    var editor = new TinyMDE.Editor({ element: "editor" });
+    var commandBar = new TinyMDE.CommandBar({
+        element: "toolbar",
+        editor: editor,
+    });
+    const dropzone = new Dropzone("div.my-dropzone");
+</script>
+{{ template "footer.tmpl" }}

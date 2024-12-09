@@ -5,17 +5,29 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2025 Radford Election</title>
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" type="text/css" href="/style.css">
 
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="/icon.png">
 
     <script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/tiny-markdown-editor/dist/tiny-mde.min.js"></script>
+    <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://unpkg.com/tiny-markdown-editor/dist/tiny-mde.min.css"
+    />
+    <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+    <link
+            rel="stylesheet"
+            href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css"
+            type="text/css"
+    />
 </head>
 <body class="h-screen">
 <div class="navbar bg-base-100">
     <div class="flex-1">
-        <a><img src="icon.png" alt="Logo" class="max-h-12"></a>
+        <a href="/"><img src="icon.png" alt="Logo" class="max-h-12"></a>
     </div>
     <div class="flex-none gap-2">
         <div class="flex-none">
@@ -57,7 +69,7 @@
             <ul
                     tabindex="0"
                     class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-                <li><a>Profile</a></li>
+                <li><a href="/profile">Profile</a></li>
                 <li><a>Logout</a></li>
             </ul>
         </div>

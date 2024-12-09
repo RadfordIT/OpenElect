@@ -19,6 +19,12 @@ services:
       watch:
         - action: rebuild
           path: "**/*.go"
+        - action: rebuild
+          path: "**/*.tmpl"
+        - action: rebuild
+          path: "**/*.css"
+        - action: rebuild
+          path: "**/*.js"
 
 
   postgres:

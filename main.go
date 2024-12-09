@@ -101,11 +101,6 @@ func main() {
 		})
 		return
 	})
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
 	r.GET("/:candidate", func(c *gin.Context) {
 		name := c.Param("candidate")
 		var description string
@@ -115,6 +110,9 @@ func main() {
 		c.HTML(http.StatusOK, "candidate.tmpl", gin.H{
 			"name": name,
 		})
+	})
+	r.GET("/profile", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "profile.tmpl", gin.H{})
 	})
 	r.Run()
 }
