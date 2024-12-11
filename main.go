@@ -72,6 +72,7 @@ func main() {
 	})
 	r.POST("/profile", candidateAuthMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
+		name := session.Get("name")
 		userID := session.Get("user_id").(string)
 		description := c.PostForm("description")
 		hookstatement := c.PostForm("hookstatement")
@@ -79,6 +80,7 @@ func main() {
 		fmt.Println(description, tags)
 		c.JSON(http.StatusOK, gin.H{
 			"status":        "ok",
+			"name":          name,
 			"user_id":       userID,
 			"description":   description,
 			"hookstatement": hookstatement,

@@ -136,7 +136,9 @@ func loginRoutes() {
 			c.String(http.StatusInternalServerError, "Failed to extract groups: %v", err)
 			return
 		}
+		fmt.Println(claims["name"].(string))
 		fmt.Println(claims["sub"], groups)
+		session.Set("name", claims["name"])
 		session.Set("user_id", claims["sub"])
 		session.Set("groups", groups)
 		if err := session.Save(); err != nil {
