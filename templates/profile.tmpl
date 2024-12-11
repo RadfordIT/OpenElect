@@ -1,5 +1,5 @@
 {{ template "header.tmpl" }}
-<form method="post" enctype="multipart/form-data">
+<form id="add-tag-form" class="mt-4">
     <label class="form-control">
         <div class="label">
             <span class="label-text">Your bio</span>
@@ -7,21 +7,73 @@
         </div>
         <div class="editorcontainer">
             <div id="toolbar"></div>
-            <textarea class="textarea textarea-bordered h-24" placeholder="Bio" id="editor"></textarea>
-        </div>
-        <div class="label">
-            <span class="label-text-alt">Your bio</span>
-            <span class="label-text-alt">Alt label</span>
+            <textarea class="textarea textarea-bordered h-24" placeholder="Description" id="editor"></textarea>
         </div>
     </label>
-    <input type="file" class="dropzone" />
+    <label class="form-control">
+        <span class="label-text">Video (optional)</span>
+        <input type="file"/>
+    </label>
+    <label class="form-control">
+        <span class="label-text">Tags</span>
+    </label>
+    <div id="tag-container" class="flex flex-wrap gap-2">
+        <!-- Initial tags can be loaded here dynamically -->
+    </div>
+    <div class="flex items-center gap-2">
+        <input
+                type="text"
+                name="tag"
+                id="tag-input"
+                placeholder="Add a tag"
+                class="input input-bordered w-full">
+        <button type="button" id="add-tag-button" class="btn btn-primary">Add</button>
+    </div>
 </form>
+
+<form id="submit-tags-form" class="mt-4">
+    <input type="hidden" name="tags" id="tags-input">
+    <button type="submit" class="btn btn-success w-full">Submit Tags</button>
+</form>
+<template id="tag-template">
+    <div class="badge badge-primary flex items-center gap-2">
+        <span class="tag-label">{{"{{"}}tag{{"}}"}}</span>
+        <button
+                type="button"
+                class="btn btn-xs btn-circle btn-error remove-tag-button">
+            &times;
+        </button>
+    </div>
+</template>
 <script type="text/javascript">
-    var editor = new TinyMDE.Editor({ element: "editor" });
+    var editor = new TinyMDE.Editor({element: "editor"});
     var commandBar = new TinyMDE.CommandBar({
         element: "toolbar",
         editor: editor,
     });
-    const dropzone = new Dropzone("div.my-dropzone");
+    document.getElementById("add-tag-button").addEventListener("click", () => {
+        const input = document.getElementById("tag-input");
+        if (!input.value.trim()) {
+            return;
+        }
+
+        const template = document.getElementById("tag-template").innerHTML;
+        const tagHTML = template.replace(/\{\{tag\}\}/g, input.value.trim());
+
+        document.getElementById("tag-container").insertAdjacentHTML("beforeend", tagHTML);
+        input.value = "";
+    });
+
+    document.getElementById("tag-container").addEventListener("click", (e) => {
+        if (e.target.classList.contains("remove-tag-button")) {
+            e.target.closest(".badge").remove();
+        }
+    });
+
+    document.getElementById("submit-tags-form").addEventListener("submit", (e) => {
+        const tags = Array.from(document.querySelectorAll(".tag-label"))
+            .map(tag => tag.textContent.trim());
+        document.getElementById("tags-input").value = tags.join(",");
+    });
 </script>
 {{ template "footer.tmpl" }}

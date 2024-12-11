@@ -1,11 +1,9 @@
 name: "OpenElect"
 services:
   web:
-    image: "golang:1.23"
-    working_dir: /OpenElect
-    command: go run .
+    build: .
     volumes:
-      - .:/OpenElect
+        - .:/OpenElect
     ports:
       - "8080:8080"
     env_file: .env

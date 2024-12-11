@@ -56,7 +56,8 @@ func main() {
 		name := c.Param("candidate")
 		var description string
 		var hookstatement string
-		err := dbpool.QueryRow(context.Background(), "SELECT name FROM candidates WHERE name = $1", name).Scan(&description, &hookstatement)
+		var keywords []string
+		err := dbpool.QueryRow(context.Background(), "SELECT name FROM candidates WHERE name = $1", name).Scan(&description, &hookstatement, &keywords)
 		if err != nil {
 			c.String(http.StatusNotFound, "Candidate not found")
 			return
@@ -68,6 +69,9 @@ func main() {
 	})
 	r.GET("/profile", candidateAuthMiddleware(), func(c *gin.Context) {
 		c.HTML(http.StatusOK, "profile.tmpl", gin.H{})
+	})
+	r.POST("/profile", candidateAuthMiddleware(), func(c *gin.Context) {
+		description := c.PostForm("description")
 	})
 	r.Run()
 }
