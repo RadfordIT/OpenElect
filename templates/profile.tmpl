@@ -1,5 +1,5 @@
 {{ template "header.tmpl" }}
-<form id="add-tag-form" class="mt-4">
+<form id="main-form" class="mt-4" action="/profile" method="post">
     <label class="form-control">
         <div class="label">
             <span class="label-text">Your bio</span>
@@ -7,13 +7,24 @@
         </div>
         <div class="editorcontainer">
             <div id="toolbar"></div>
-            <textarea class="textarea textarea-bordered h-24" placeholder="Description" id="editor"></textarea>
+            <textarea required class="textarea textarea-bordered h-24" placeholder="Description" id="editor" name="description"></textarea>
         </div>
     </label>
     <label class="form-control">
-        <span class="label-text">Video (optional)</span>
-        <input type="file"/>
+        <div class="label">
+            <span class="label-text">Hook Statement</span>
+            <span class="label-text-alt">Alt label</span>
+        </div>
+        <input required type="text" placeholder="Type here" class="input input-bordered w-full max-w-xs" name="hookstatement" />
     </label>
+
+    <label class="form-control">
+        <span class="label-text">Video (optional)</span>
+        <input
+                type="file"
+                class="file-input file-input-bordered file-input-primary w-full max-w-xs" />
+    </label>
+
     <label class="form-control">
         <span class="label-text">Tags</span>
     </label>
@@ -29,15 +40,13 @@
                 class="input input-bordered w-full">
         <button type="button" id="add-tag-button" class="btn btn-primary">Add</button>
     </div>
+    <button type="submit" class="btn btn-success w-full mt-4">Submit</button>
 </form>
 
-<form id="submit-tags-form" class="mt-4">
-    <input type="hidden" name="tags" id="tags-input">
-    <button type="submit" class="btn btn-success w-full">Submit Tags</button>
-</form>
 <template id="tag-template">
     <div class="badge badge-primary flex items-center gap-2">
         <span class="tag-label">{{"{{"}}tag{{"}}"}}</span>
+        <input type="hidden" name="tag[]" value="{{"{{"}}tag{{"}}"}}">
         <button
                 type="button"
                 class="btn btn-xs btn-circle btn-error remove-tag-button">
@@ -45,12 +54,14 @@
         </button>
     </div>
 </template>
+
 <script type="text/javascript">
     var editor = new TinyMDE.Editor({element: "editor"});
     var commandBar = new TinyMDE.CommandBar({
         element: "toolbar",
         editor: editor,
     });
+
     document.getElementById("add-tag-button").addEventListener("click", () => {
         const input = document.getElementById("tag-input");
         if (!input.value.trim()) {
@@ -68,12 +79,6 @@
         if (e.target.classList.contains("remove-tag-button")) {
             e.target.closest(".badge").remove();
         }
-    });
-
-    document.getElementById("submit-tags-form").addEventListener("submit", (e) => {
-        const tags = Array.from(document.querySelectorAll(".tag-label"))
-            .map(tag => tag.textContent.trim());
-        document.getElementById("tags-input").value = tags.join(",");
     });
 </script>
 {{ template "footer.tmpl" }}
