@@ -46,7 +46,9 @@
             <div class="card-actions justify-end">
                 <a class="btn btn-primary" href="/{{ .Name }}">Learn More</a>
             </div>
-            <p>{{ .Description }}</p>
+            {{ range .Keywords }}
+                <div class="badge badge-primary">{{ . }}</div>
+            {{ end }}
         </div>
     </div>
 {{ end }}

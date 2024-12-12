@@ -8,27 +8,13 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"math/rand"
 	"net/http"
 	"os"
 )
 
 var r *gin.Engine
 var dbpool *pgxpool.Pool
-
-type Candidate struct {
-	Name          string   `json:"name"`
-	Keywords      []string `json:"keywords"`
-	HookStatement string   `json:"hookstatement"`
-	Description   string   `json:"description"`
-}
-
-func toStringSlice(input []interface{}) []string {
-	output := make([]string, len(input))
-	for i, v := range input {
-		output[i] = v.(string)
-	}
-	return output
-}
 
 func main() {
 	authSetup()
@@ -39,6 +25,7 @@ func main() {
 		os.Exit(1)
 	}
 	defer dbpool.Close()
+	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS candidates")
 	dbpool.Exec(context.Background(), "CREATE TABLE IF NOT EXISTS candidates (id TEXT NOT NULL PRIMARY KEY, name TEXT NOT NULL, description TEXT NOT NULL CHECK (char_length(description) <= 1500), hookstatement TEXT NOT NULL CHECK (char_length(hookstatement) <= 150), keywords TEXT[] CHECK (array_length(keywords, 1) <= 6))")
 	searchSetup()
 	gob.Register(map[string]interface{}{})
@@ -54,10 +41,11 @@ func main() {
 	loginRoutes()
 
 	r.GET("/", authMiddleware(), func(c *gin.Context) {
-		session := sessions.Default(c)
-		fmt.Println(session.Get("user_id"), session.Get("groups"))
 		query := c.DefaultQuery("q", "")
 		candidates := search(query)
+		rand.Shuffle(len(candidates), func(i, j int) {
+			candidates[i], candidates[j] = candidates[j], candidates[i]
+		})
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
 			"text": candidates,
 		})
@@ -95,7 +83,7 @@ func main() {
 			c.String(http.StatusInternalServerError, "Failed to upsert candidate: %v", err)
 			return
 		} else {
-			index(name, description, hookstatement, tags)
+			index(userID, name, description, hookstatement, tags)
 		}
 		c.HTML(http.StatusOK, "profile.tmpl", gin.H{})
 	})

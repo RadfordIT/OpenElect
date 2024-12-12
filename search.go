@@ -12,6 +12,22 @@ import (
 
 var client *typesense.Client
 
+type Candidate struct {
+	ID            string   `json:"id"`
+	Name          string   `json:"name"`
+	Keywords      []string `json:"keywords"`
+	HookStatement string   `json:"hookstatement"`
+	Description   string   `json:"description"`
+}
+
+func toStringSlice(input []interface{}) []string {
+	output := make([]string, len(input))
+	for i, v := range input {
+		output[i] = v.(string)
+	}
+	return output
+}
+
 func searchSetup() {
 	client = typesense.NewClient(
 		typesense.WithServer(os.Getenv("TYPESENSE_URL")),
@@ -19,6 +35,10 @@ func searchSetup() {
 	schema := &api.CollectionSchema{
 		Name: "candidates",
 		Fields: []api.Field{
+			{
+				Name: "id",
+				Type: "string",
+			},
 			{
 				Name: "name",
 				Type: "string",
@@ -37,6 +57,7 @@ func searchSetup() {
 			},
 		},
 	}
+	//client.Collection("candidates").Delete(context.Background())
 	client.Collections().Create(context.Background(), schema)
 }
 
@@ -66,8 +87,9 @@ func search(query string) []Candidate {
 	return candidates
 }
 
-func index(name string, description string, hookstatement string, keywords []string) {
-	client.Collection("candidates").Documents().Create(context.Background(), &Candidate{
+func index(id string, name string, description string, hookstatement string, keywords []string) {
+	client.Collection("candidates").Documents().Upsert(context.Background(), &Candidate{
+		ID:            id,
 		Name:          name,
 		Keywords:      keywords,
 		HookStatement: hookstatement,
