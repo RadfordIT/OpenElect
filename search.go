@@ -65,3 +65,12 @@ func search(query string) []Candidate {
 	}
 	return candidates
 }
+
+func index(name string, description string, hookstatement string, keywords []string) {
+	client.Collection("candidates").Documents().Create(context.Background(), &Candidate{
+		Name:          name,
+		Keywords:      keywords,
+		HookStatement: hookstatement,
+		Description:   description,
+	})
+}

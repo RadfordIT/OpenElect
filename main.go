@@ -7,10 +7,13 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"net/http"
+	"os"
 )
 
 var r *gin.Engine
+var dbpool *pgxpool.Pool
 
 type Candidate struct {
 	Name          string   `json:"name"`
@@ -29,7 +32,14 @@ func toStringSlice(input []interface{}) []string {
 
 func main() {
 	authSetup()
-	dbSetup()
+	var err error
+	dbpool, err = pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
+	}
+	defer dbpool.Close()
+	dbpool.Exec(context.Background(), "CREATE TABLE IF NOT EXISTS candidates (id TEXT NOT NULL PRIMARY KEY, name TEXT NOT NULL, description TEXT NOT NULL CHECK (char_length(description) <= 1500), hookstatement TEXT NOT NULL CHECK (char_length(hookstatement) <= 150), keywords TEXT[] CHECK (array_length(keywords, 1) <= 6))")
 	searchSetup()
 	gob.Register(map[string]interface{}{})
 
@@ -57,14 +67,17 @@ func main() {
 		var description string
 		var hookstatement string
 		var keywords []string
-		err := dbpool.QueryRow(context.Background(), "SELECT name FROM candidates WHERE name = $1", name).Scan(&description, &hookstatement, &keywords)
+		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1", name).Scan(nil, &name, &description, &hookstatement, &keywords)
 		if err != nil {
+			fmt.Println(err)
 			c.String(http.StatusNotFound, "Candidate not found")
 			return
 		}
-		fmt.Println(description, hookstatement)
 		c.HTML(http.StatusOK, "candidate.tmpl", gin.H{
-			"name": name,
+			"name":          name,
+			"description":   description,
+			"hookstatement": hookstatement,
+			"keywords":      keywords,
 		})
 	})
 	r.GET("/profile", candidateAuthMiddleware(), func(c *gin.Context) {
@@ -72,20 +85,19 @@ func main() {
 	})
 	r.POST("/profile", candidateAuthMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
-		name := session.Get("name")
+		name := session.Get("name").(string)
 		userID := session.Get("user_id").(string)
 		description := c.PostForm("description")
 		hookstatement := c.PostForm("hookstatement")
 		tags := c.PostFormArray("tag[]")
-		fmt.Println(description, tags)
-		c.JSON(http.StatusOK, gin.H{
-			"status":        "ok",
-			"name":          name,
-			"user_id":       userID,
-			"description":   description,
-			"hookstatement": hookstatement,
-			"tags":          tags,
-		})
+		_, err := dbpool.Exec(context.Background(), "INSERT INTO candidates (id, name, description, hookstatement, keywords) VALUES ($1, $2, $3, $4, $5) ON CONFLICT(id) DO UPDATE SET id = $1, name = $2, description = $3, hookstatement = $4, keywords = $5", userID, name, description, hookstatement, tags)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to upsert candidate: %v", err)
+			return
+		} else {
+			index(name, description, hookstatement, tags)
+		}
+		c.HTML(http.StatusOK, "profile.tmpl", gin.H{})
 	})
 	r.Run()
 }
