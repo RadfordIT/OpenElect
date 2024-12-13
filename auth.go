@@ -7,6 +7,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -131,6 +132,35 @@ func loginRoutes() {
 			c.String(http.StatusInternalServerError, "Failed to extract claims: %v", err)
 			return
 		}
+
+		pfpURL := "https://graph.microsoft.com/v1.0/me/photo/$value"
+		req, _ := http.NewRequest("GET", pfpURL, nil)
+		req.Header.Set("Authorization", "Bearer "+token.AccessToken)
+		pfpclient := &http.Client{}
+		resp, err := pfpclient.Do(req)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to fetch profile picture: %v", err)
+			return
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode == http.StatusOK {
+			profilePictureData, err := io.ReadAll(resp.Body)
+			if err != nil {
+				c.String(http.StatusInternalServerError, "Failed to read profile picture: %v", err)
+				return
+			}
+			fileName := "./pfp/" + claims["sub"].(string) + ".jpg"
+			err = os.WriteFile(fileName, profilePictureData, 0644)
+			if err != nil {
+				c.String(http.StatusInternalServerError, "Failed to save profile picture: %v", err)
+				return
+			}
+			session.Set("pfp", fileName)
+		} else {
+			c.String(http.StatusInternalServerError, "Failed to fetch profile picture: %v", err)
+			session.Set("pfp", "./pfp/default_pfp.jpg")
+		}
+
 		groups, err := extractGroupsFromToken(context.Background(), rawIDToken)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to extract groups: %v", err)
@@ -145,7 +175,20 @@ func loginRoutes() {
 			c.String(http.StatusInternalServerError, "Failed to save session: %v", err)
 			return
 		}
-		fmt.Println(session.Get("user_id"), session.Get("groups"))
+		fmt.Println(session.Get("user_id"), session.Get("groups"), session.Get("pfp"))
 		c.Redirect(http.StatusFound, "/")
+	})
+	r.GET("/pfp", func(c *gin.Context) {
+		userId := c.DefaultQuery("user", "")
+		if userId != "" {
+			http.ServeFile(c.Writer, c.Request, "./pfp/"+userId+".jpg")
+		}
+		session := sessions.Default(c)
+		pfp := session.Get("pfp")
+		fmt.Println("pfp: ", pfp)
+		if pfp == nil {
+			pfp = "./pfp/default_pfp.jpg"
+		}
+		http.ServeFile(c.Writer, c.Request, pfp.(string))
 	})
 }

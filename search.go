@@ -57,7 +57,7 @@ func searchSetup() {
 			},
 		},
 	}
-	//client.Collection("candidates").Delete(context.Background())
+	client.Collection("candidates").Delete(context.Background())
 	client.Collections().Create(context.Background(), schema)
 }
 

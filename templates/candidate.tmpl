@@ -1,15 +1,15 @@
 {{ template "header.tmpl" }}
 <div class="w-full flex justify-center items-center overflow-hidden">
     <img
-            src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-            alt="Placeholder Image"
+            src="/pfp?user={{.userId}}"
+            alt="{{.name}}"
             class="object-cover absolute z-0 w-full"
             style="height: 75vh; filter: blur(7px);"
     />
     <img
-            src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-            alt="Placeholder Image"
-            class="object-cover z-10"
+            src="/pfp?user={{.userId}}"
+            alt="{{.name}}"
+            class="object-cover z-10 h-[75vh]"
             style="margin: auto;"
     >
 </div>

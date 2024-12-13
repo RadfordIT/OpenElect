@@ -25,7 +25,7 @@ func main() {
 		os.Exit(1)
 	}
 	defer dbpool.Close()
-	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS candidates")
+	dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS candidates")
 	dbpool.Exec(context.Background(), "CREATE TABLE IF NOT EXISTS candidates (id TEXT NOT NULL PRIMARY KEY, name TEXT NOT NULL, description TEXT NOT NULL CHECK (char_length(description) <= 5000), hookstatement TEXT NOT NULL CHECK (char_length(hookstatement) <= 150), keywords TEXT[] CHECK (array_length(keywords, 1) <= 6))")
 	searchSetup()
 	gob.Register(map[string]interface{}{})
@@ -52,16 +52,18 @@ func main() {
 	})
 	r.GET("/:candidate", authMiddleware(), func(c *gin.Context) {
 		name := c.Param("candidate")
+		var userId string
 		var description string
 		var hookstatement string
 		var keywords []string
-		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1", name).Scan(nil, &name, &description, &hookstatement, &keywords)
+		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1", name).Scan(&userId, &name, &description, &hookstatement, &keywords)
 		if err != nil {
 			fmt.Println(err)
 			c.String(http.StatusNotFound, "Candidate not found")
 			return
 		}
 		c.HTML(http.StatusOK, "candidate.tmpl", gin.H{
+			"userId":        userId,
 			"name":          name,
 			"description":   description,
 			"hookstatement": hookstatement,
