@@ -8,6 +8,7 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/spf13/viper"
 	"math/rand"
 	"net/http"
 	"os"
@@ -17,8 +18,16 @@ var r *gin.Engine
 var dbpool *pgxpool.Pool
 
 func main() {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
+	err := viper.ReadInConfig()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to read config: %v\n", err)
+		os.Exit(1)
+	}
+
 	authSetup()
-	var err error
 	dbpool, err = pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)

@@ -1,5 +1,4 @@
 /** @type {import('tailwindcss').Config} */
-/*eslint-env node*/
 module.exports = {
     content: ["./templates/**/*.{html,tmpl}"],
     plugins: [
