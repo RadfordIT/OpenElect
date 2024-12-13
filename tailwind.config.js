@@ -2,13 +2,18 @@
 /*eslint-env node*/
 module.exports = {
     content: ["./templates/**/*.{html,tmpl}"],
-    darkMode: 'selector',
-    theme: {
-        extend: {},
-    },
     plugins: [
         require('@tailwindcss/typography'),
         require('daisyui'),
     ],
+    daisyui: {
+        themes: [
+            {
+                ...require("daisyui/src/theming/themes")["light"],
+                primary: "blue",
+                secondary: "teal",
+            }
+        ]
+    },
 }
 

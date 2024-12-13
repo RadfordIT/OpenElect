@@ -54,6 +54,25 @@ func candidateAuthMiddleware() gin.HandlerFunc {
 	}
 }
 
+func adminAuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		session := sessions.Default(c)
+		token := session.Get("user_id")
+		if token == nil {
+			c.String(http.StatusUnauthorized, "Unauthorized")
+			c.Abort()
+			return
+		}
+		groups := session.Get("groups").([]string)
+		if !contains(groups, os.Getenv("ADMIN_GROUP_ID")) {
+			c.String(http.StatusUnauthorized, "Unauthorized")
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
+
 func contains(groups []string, s string) bool {
 	for _, group := range groups {
 		if group == s {
