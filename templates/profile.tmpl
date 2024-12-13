@@ -1,63 +1,70 @@
 {{ template "header.tmpl" }}
 <div class="md:container md:mx-auto">
-<form id="main-form" class="mt-4" action="/profile" method="post" enctype="multipart/form-data">
-    <label class="form-control">
-        <div class="label">
-            <span class="label-text">Your bio</span>
-            <span class="label-text-alt">Alt label</span>
-        </div>
-        <div class="editorcontainer">
-            <div id="toolbar"></div>
-            <textarea required class="textarea textarea-bordered h-24" placeholder="Description" id="editor" name="description"></textarea>
-        </div>
-    </label>
-    <label class="form-control">
-        <div class="label">
-            <span class="label-text">Hook Statement</span>
-            <span class="label-text-alt">Alt label</span>
-        </div>
-        <input required type="text" placeholder="Type here" class="input input-bordered w-full max-w-xs" name="hookstatement" />
-    </label>
+    <form id="main-form" class="mt-4" action="/profile" method="post" enctype="multipart/form-data">
+        <label class="form-control">
+            <div class="label">
+                <span class="label-text">Your bio</span>
+                <span class="label-text-alt">Alt label</span>
+            </div>
+            <div class="editorcontainer">
+                <div id="toolbar"></div>
+                <textarea required class="textarea textarea-bordered h-24" placeholder="Description" id="editor"
+                          name="description"></textarea>
+            </div>
+        </label>
+        <label class="form-control">
+            <div class="label">
+                <span class="label-text">Hook Statement</span>
+                <span class="label-text-alt">Alt label</span>
+            </div>
+            <input required type="text" placeholder="Hook Statement" class="input input-bordered w-full max-w-xs"
+                   name="hookstatement" value="{{ .hookstatement }}">
+        </label>
 
-    <label class="form-control">
-        <span class="label-text">Video (optional)</span>
-        <input
-                type="file"
-                class="file-input file-input-bordered file-input-primary w-full max-w-xs" />
-    </label>
+        <label class="form-control">
+            <span class="label-text">Video (optional)</span>
+            <input
+                    type="file"
+                    class="file-input file-input-bordered file-input-primary w-full max-w-xs"/>
+        </label>
 
-    <label class="form-control">
-        <span class="label-text">Tags</span>
-    </label>
-    <div id="tag-container" class="flex flex-wrap gap-2">
-        <!-- Initial tags can be loaded here dynamically -->
-    </div>
-    <div class="flex items-center gap-2">
-        <input
-                type="text"
-                name="tag"
-                id="tag-input"
-                placeholder="Add a tag"
-                class="input input-bordered w-full">
-        <button type="button" id="add-tag-button" class="btn btn-primary">Add</button>
-    </div>
-    <button type="submit" class="btn btn-success w-full mt-4">Submit</button>
-</form>
+        <label class="form-control">
+            <span class="label-text">Tags</span>
+        </label>
+        <div id="tag-container" class="flex flex-wrap gap-2">
+            {{ range .keywords }}
+                <div class="badge badge-primary flex items-center gap-2">
+                    <span class="tag-label">{{.}}</span>
+                    <input type="hidden" name="tag[]" value="{{.}}">
+                    <button type="button" class="remove-tag-button">&times;</button>
+                </div>
+            {{ end }}
+        </div>
+        <div class="flex items-center gap-2">
+            <input
+                    type="text"
+                    name="tag"
+                    id="tag-input"
+                    placeholder="Add a tag"
+                    class="input input-bordered w-full">
+            <button type="button" id="add-tag-button" class="btn btn-primary">Add</button>
+        </div>
+        <button type="submit" class="btn btn-success w-full mt-4">Submit</button>
+    </form>
 
-<template id="tag-template">
-    <div class="badge badge-primary flex items-center gap-2">
-        <span class="tag-label">{{"{{"}}tag{{"}}"}}</span>
-        <input type="hidden" name="tag[]" value="{{"{{"}}tag{{"}}"}}">
-        <button
-                type="button"
-                class="remove-tag-button">
-            &times;
-        </button>
-    </div>
-</template>
+    <template id="tag-template">
+        <div class="badge badge-primary flex items-center gap-2">
+            <span class="tag-label">{{"{{"}}tag{{"}}"}}</span>
+            <input type="hidden" name="tag[]" value="{{"{{"}}tag{{"}}"}}">
+            <button type="button" class="remove-tag-button">&times;</button>
+        </div>
+    </template>
 </div>
 <script type="text/javascript">
-    var editor = new TinyMDE.Editor({element: "editor"});
+    var editor = new TinyMDE.Editor({
+        element: "editor",
+        content: "{{ .description }}",
+    });
     var commandBar = new TinyMDE.CommandBar({
         element: "toolbar",
         editor: editor,

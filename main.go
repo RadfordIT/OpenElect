@@ -25,7 +25,7 @@ func main() {
 		os.Exit(1)
 	}
 	defer dbpool.Close()
-	dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS candidates")
+	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS candidates")
 	dbpool.Exec(context.Background(), "CREATE TABLE IF NOT EXISTS candidates (id TEXT NOT NULL PRIMARY KEY, name TEXT NOT NULL, description TEXT NOT NULL CHECK (char_length(description) <= 5000), hookstatement TEXT NOT NULL CHECK (char_length(hookstatement) <= 150), keywords TEXT[] CHECK (array_length(keywords, 1) <= 6))")
 	searchSetup()
 	gob.Register(map[string]interface{}{})
@@ -58,8 +58,7 @@ func main() {
 		var keywords []string
 		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1", name).Scan(&userId, &name, &description, &hookstatement, &keywords)
 		if err != nil {
-			fmt.Println(err)
-			c.String(http.StatusNotFound, "Candidate not found")
+			c.String(http.StatusNotFound, "Candidate not found: %v", err)
 			return
 		}
 		c.HTML(http.StatusOK, "candidate.tmpl", gin.H{
@@ -71,7 +70,18 @@ func main() {
 		})
 	})
 	r.GET("/profile", candidateAuthMiddleware(), func(c *gin.Context) {
-		c.HTML(http.StatusOK, "profile.tmpl", gin.H{})
+		session := sessions.Default(c)
+		var userId string
+		var description string
+		var hookstatement string
+		var keywords []string
+		dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE id = $1", session.Get("user_id")).Scan(&userId, nil, &description, &hookstatement, &keywords)
+		c.HTML(http.StatusOK, "profile.tmpl", gin.H{
+			"userId":        userId,
+			"description":   description,
+			"hookstatement": hookstatement,
+			"keywords":      keywords,
+		})
 	})
 	r.POST("/profile", candidateAuthMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
@@ -87,7 +97,7 @@ func main() {
 		} else {
 			index(userID, name, description, hookstatement, tags)
 		}
-		c.HTML(http.StatusOK, "profile.tmpl", gin.H{})
+		c.Redirect(http.StatusSeeOther, "/"+name)
 	})
 	r.Run()
 }
