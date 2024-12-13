@@ -4,20 +4,20 @@
             src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
             alt="Placeholder Image"
             class="object-cover absolute z-0 w-full"
-            style="width: 100%; height: 75vh; object-fit: cover; filter: blur(10px); position: absolute; z-index: 0;"
+            style="height: 75vh; filter: blur(7px);"
     />
     <img
             src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
             alt="Placeholder Image"
             class="object-cover z-10"
-            style="z-index: 1; margin: auto;"
+            style="margin: auto;"
     >
 </div>
-<h1 class="text-5xl font-bold text-center">{{.name}}</h1>
-<h2 class="text-3xl text-center">{{.hookstatement}}</h2>
+<h1 class="text-5xl font-bold text-center mt-3">{{.name}}</h1>
+<h2 class="text-3xl font-light text-center">{{.hookstatement}}</h2>
 <p>{{.description}}</p>
-    {{ range .keywords }}
-        <div class="badge badge-primary">{{.}}</div>
-    {{ end }}
+{{ range .keywords }}
+    <div class="badge badge-primary">{{.}}</div>
+{{ end }}
 
 {{ template "footer.tmpl" }}
