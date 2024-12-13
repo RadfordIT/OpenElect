@@ -1,5 +1,5 @@
 {{ template "header.tmpl" }}
-<div class="hero h-[75vh]">
+<div class="hero h-[75vh] mb-3">
     <div
             class="hero h-[75vh]"
             style="background-image: url(https://img.daisyui.com/images/stock/photo-1507358522600-9f71e620c44e.webp);">
@@ -10,7 +10,7 @@
                 <p class="mb-5 text-2xl">
                     Radford College
                 </p>
-                <div class="flex max-w-md">
+                <div class="flex">
                     <form onsubmit="search()">
                         <label class="input input-bordered flex flex-1 items-center gap-2 mr-5">
                             <input type="text" class="grow" placeholder="Search through candidates" id="query"/>
@@ -32,7 +32,7 @@
         </div>
     </div>
 </div>
-<h1>hello</h1>
+<div class="md:container md:mx-auto">
 {{ range .text }}
     <div class="card bg-base-100 w-96 shadow-xl">
         <figure>
@@ -52,6 +52,7 @@
         </div>
     </div>
 {{ end }}
+</div>
 <script type="text/javascript">
     function search() {
         const query = document.getElementById('query').value;
