@@ -1,4 +1,7 @@
 {
-  "primary": "blue",
-  "secondary": "teal"
+  "colors": {
+    "primary": "#FF0000",
+    "primary-content": "white",
+    "secondary": "teal"
+  }
 }

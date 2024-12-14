@@ -16,16 +16,36 @@ import (
 
 var r *gin.Engine
 var dbpool *pgxpool.Pool
+var configEditor, colorsEditor *viper.Viper
 
 func main() {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
-	err := viper.ReadInConfig()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to read config: %v\n", err)
-		os.Exit(1)
-	}
+	var err error
+
+	configEditor = viper.New()
+	configEditor.SetConfigName("config")
+	configEditor.SetConfigType("yaml")
+	configEditor.AddConfigPath("./config")
+	configEditor.ReadInConfig()
+
+	colorsEditor = viper.New()
+	colorsEditor.SetConfigName("colors")
+	colorsEditor.SetConfigType("json")
+	colorsEditor.AddConfigPath("./config")
+	colorsEditor.ReadInConfig()
+
+	positions := configEditor.GetStringSlice("positions")
+	fmt.Println(positions)
+	positions = append(positions, "Candidate")
+	fmt.Println(positions)
+	configEditor.Set("positions", positions)
+	configEditor.WriteConfig()
+
+	colors := colorsEditor.GetStringMapString("colors")
+	fmt.Println(colors)
+	colors["primary"] = "#FF0000"
+	fmt.Println(colors)
+	colorsEditor.Set("colors", colors)
+	colorsEditor.WriteConfig()
 
 	authSetup()
 	dbpool, err = pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))

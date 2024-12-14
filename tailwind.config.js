@@ -9,10 +9,7 @@ module.exports = {
     ],
     "daisyui": {
         "themes": [
-            {
-                ...require("daisyui/src/theming/themes")["light"],
-                colors
-            }
+            colors
         ]
     }
 }
