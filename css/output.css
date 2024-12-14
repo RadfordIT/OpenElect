@@ -630,13 +630,13 @@ html {
 
 :root:has(input.theme-controller[value=color-scheme]:checked): light;
 
-[data-theme=primary]: blue;
+[data-theme=primary]: oklch(49.12% 0.3096 275.75);
 
-:root:has(input.theme-controller[value=primary]:checked): blue;
+:root:has(input.theme-controller[value=primary]:checked): oklch(49.12% 0.3096 275.75);
 
-[data-theme=secondary]: teal;
+[data-theme=secondary]: oklch(69.71% 0.329 342.55);
 
-:root:has(input.theme-controller[value=secondary]:checked): teal;
+:root:has(input.theme-controller[value=secondary]:checked): oklch(69.71% 0.329 342.55);
 
 [data-theme=secondary-content]: oklch(98.71% 0.0106 342.55);
 
@@ -669,6 +669,31 @@ html {
 [data-theme=base-content]: #1f2937;
 
 :root:has(input.theme-controller[value=base-content]:checked): #1f2937;
+
+[data-theme=data] {
+  --p: 45.2014% 0.313214 264.052021;
+  --b1: 100% 0 0;
+  --in: 72.06% 0.191 231.6;
+  --su: 64.8% 0.150 160;
+  --wa: 84.71% 0.199 83.87;
+  --er: 71.76% 0.221 22.18;
+  --pc: 89.0403% 0.062643 264.052021;
+  --sc: 90.8625% 0.018542 194.768948;
+  --inc: 0% 0 0;
+  --suc: 0% 0 0;
+  --wac: 0% 0 0;
+  --erc: 0% 0 0;
+  --rounded-box: 1rem;
+  --rounded-btn: 0.5rem;
+  --rounded-badge: 1.9rem;
+  --animation-btn: 0.25s;
+  --animation-input: .2s;
+  --btn-focus-scale: 0.95;
+  --border-btn: 1px;
+  --tab-border: 1px;
+  --tab-radius: 0.5rem;
+  --s: 54.3123% 0.09271 194.768948;
+}
 
 .prose {
   color: var(--tw-prose-body);
