@@ -1,5 +1,69 @@
 {{ template "header.tmpl" }}
 <div class="md:container md:mx-auto">
+    <form action="/admin" method="post" enctype="application/x-www-form-urlencoded">
+        <label for="primary">Primary Color</label>
+        <input type="color" id="primary" name="colors[primary]" value="{{ .colors.primary }}">
+        <br>
+        <label for="primaryContent">Primary Content Color</label>
+        <input type="color" id="primaryContent" name="colors[primaryContent]" value="{{ .colors.primaryContent }}">
+        <br>
+        <label for="secondary">Secondary Color</label>
+        <input type="color" id="secondary" name="colors[secondary]" value="{{ .colors.secondary }}">
+        <br>
+        <label for="secondaryContent">Secondary Content Color</label>
+        <input type="color" id="secondaryContent" name="colors[secondaryContent]" value="{{ .colors.secondaryContent }}">
+        <br>
+        <label for="accent">Accent Color</label>
+        <input type="color" id="accent" name="colors[accent]" value="{{ .colors.accent }}">
+        <br>
+        <label for="accentContent">Accent Content Color</label>
+        <input type="color" id="accentContent" name="colors[accentContent]" value="{{ .colors.accentContent }}">
+        <br>
+        <label for="neutral">Neutral Color</label>
+        <input type="color" id="neutral" name="colors[neutral]" value="{{ .colors.neutral }}">
+        <br>
+        <label for="neutralContent">Neutral Content Color</label>
+        <input type="color" id="neutralContent" name="colors[neutralContent]" value="{{ .colors.neutralContent }}">
+        <br>
+        <label for="base100">Base-100 Color</label>
+        <input type="color" id="base100" name="colors[base100]" value="{{ .colors.base100 }}">
+        <br>
+        <label for="base200">Base-200 Color</label>
+        <input type="color" id="base200" name="colors[base200]" value="{{ .colors.base200 }}">
+        <br>
+        <label for="base300">Base-300 Color</label>
+        <input type="color" id="base300" name="colors[base300]" value="{{ .colors.base300 }}">
+        <br>
+        <label for="baseContent">Base Content Color</label>
+        <input type="color" id="baseContent" name="colors[baseContent]" value="{{ .colors.baseContent }}">
+        <br>
+        <label for="info">Info Color</label>
+        <input type="color" id="info" name="colors[info]" value="{{ .colors.info }}">
+        <br>
+        <label for="infoContent">Info Content Color</label>
+        <input type="color" id="infoContent" name="colors[infoContent]" value="{{ .colors.infoContent }}">
+        <br>
+        <label for="success">Success Color</label>
+        <input type="color" id="success" name="colors[success]" value="{{ .colors.success }}">
+        <br>
+        <label for="successContent">Success Content Color</label>
+        <input type="color" id="successContent" name="colors[successContent]" value="{{ .colors.successContent }}">
+        <br>
+        <label for="warning">Warning Color</label>
+        <input type="color" id="warning" name="colors[warning]" value="{{ .colors.warning }}">
+        <br>
+        <label for="warningContent">Warning Content Color</label>
+        <input type="color" id="warningContent" name="colors[warningContent]" value="{{ .colors.warningContent }}">
+        <br>
+        <label for="error">Error Color</label>
+        <input type="color" id="error" name="colors[error]" value="{{ .colors.error }}">
+        <br>
+        <label for="errorContent">Error Content Color</label>
+        <input type="color" id="errorContent" name="colors[errorContent]" value="{{ .colors.errorContent }}">
+        <br>
+        <button class="btn btn-primary" type="submit">Save</button>
+    </form>
 
+    {{ .colors }}
 </div>
 {{ template "footer.tmpl" }}

@@ -3,28 +3,20 @@ services:
   web:
     build: .
     volumes:
-        - .:/OpenElect
+      - .:/OpenElect
     ports:
       - "8080:8080"
     env_file: .env
     depends_on:
       - postgres
       - typesense
-    develop:
-      watch:
-        - action: rebuild
-          path: "**/*.go"
-        - action: rebuild
-          path: "**/*.tmpl"
-        - action: rebuild
-          path: "**/*.css"
-        - action: rebuild
-          path: "**/*.js"
-
+      - tailwind
 
   postgres:
     image: "postgres:17"
     env_file: .env
+    volumes:
+      - /opt/homebrew/var/postgresql@17:/var/lib/postgresql
     ports:
       - "5432:5432"
 
@@ -35,3 +27,13 @@ services:
     volumes:
       - /opt/homebrew/var/lib/typesense:/data
     env_file: .env
+
+  tailwind:
+    image: node:slim
+    working_dir: /OpenElect
+    volumes:
+      - .:/OpenElect
+    command: >
+      sh -c "
+      npx tailwindcss -i ./css/styles.css -o ./css/output.css --watch
+      "

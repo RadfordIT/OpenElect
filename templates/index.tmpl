@@ -1,7 +1,7 @@
 {{ template "header.tmpl" }}
-<div class="hero h-[75vh] mb-3">
+<div class="hero h-[50vh] mb-3">
     <div
-            class="hero h-[75vh]"
+            class="hero h-[50vh]"
             style="background-image: url(https://img.daisyui.com/images/stock/photo-1507358522600-9f71e620c44e.webp);">
         <div class="hero-overlay bg-opacity-60"></div>
         <div class="hero-content text-neutral-content text-center">
@@ -10,9 +10,9 @@
                 <p class="mb-5 text-2xl">
                     Radford College
                 </p>
-                <div class="flex">
+                <div class="flex join">
                     <form onsubmit="search()">
-                        <label class="input input-bordered flex flex-1 items-center gap-2 mr-5">
+                        <label class="input input-bordered flex flex-1 items-center gap-2 mr-5 join-item">
                             <input type="text" class="grow" placeholder="Search through candidates" id="query"/>
                             <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -25,7 +25,7 @@
                                         clip-rule="evenodd"/>
                             </svg>
                         </label>
-                        <button class="btn btn-primary" type="submit">Search</button>
+                        <button class="btn btn-primary join-item" type="submit">Search</button>
                     </form>
                 </div>
             </div>
