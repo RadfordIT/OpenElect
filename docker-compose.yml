@@ -29,11 +29,8 @@ services:
     env_file: .env
 
   tailwind:
-    image: node:slim
+    image: "node:slim"
     working_dir: /OpenElect
     volumes:
       - .:/OpenElect
-    command: >
-      sh -c "
-      npx tailwindcss -i ./css/styles.css -o ./css/output.css --watch
-      "
+    command: ["npx", "tailwindcss", "-i", "./css/styles.css", "-o", "./css/output.css", "--watch"]
