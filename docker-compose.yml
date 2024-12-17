@@ -33,4 +33,5 @@ services:
     working_dir: /OpenElect
     volumes:
       - .:/OpenElect
+    tty: true
     command: ["npx", "tailwindcss", "-i", "./css/styles.css", "-o", "./css/output.css", "--watch"]
