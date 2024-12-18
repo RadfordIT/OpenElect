@@ -18,6 +18,7 @@ type Candidate struct {
 	Keywords      []string `json:"keywords"`
 	HookStatement string   `json:"hookstatement"`
 	Description   string   `json:"description"`
+	Positions     []string `json:"positions"`
 }
 
 func toStringSlice(input []interface{}) []string {
@@ -55,6 +56,10 @@ func searchSetup() {
 				Name: "description",
 				Type: "string",
 			},
+			{
+				Name: "positions",
+				Type: "string[]",
+			},
 		},
 	}
 	//client.Collection("candidates").Delete(context.Background())
@@ -64,7 +69,7 @@ func searchSetup() {
 func search(query string) []Candidate {
 	searchParameters := &api.SearchCollectionParams{
 		Q:       pointer.String(query),
-		QueryBy: pointer.String("name,keywords,hookstatement,description"),
+		QueryBy: pointer.String("name,keywords,hookstatement,description,positions"),
 	}
 	results, err := client.Collection("candidates").Documents().Search(context.Background(), searchParameters)
 	if err != nil {
@@ -82,17 +87,19 @@ func search(query string) []Candidate {
 			Keywords:      toStringSlice(document["keywords"].([]interface{})),
 			HookStatement: document["hookstatement"].(string),
 			Description:   document["description"].(string),
+			Positions:     toStringSlice(document["positions"].([]interface{})),
 		})
 	}
 	return candidates
 }
 
-func index(id string, name string, description string, hookstatement string, keywords []string) {
+func index(id string, name string, description string, hookstatement string, keywords []string, positions []string) {
 	client.Collection("candidates").Documents().Upsert(context.Background(), &Candidate{
 		ID:            id,
 		Name:          name,
 		Keywords:      keywords,
 		HookStatement: hookstatement,
 		Description:   description,
+		Positions:     positions,
 	})
 }

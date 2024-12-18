@@ -3,15 +3,15 @@ package main
 import (
 	"context"
 	"encoding/gob"
-	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/spf13/viper"
+	"html/template"
 	"math/rand"
 	"net/http"
-	"os"
+	"slices"
 )
 
 var r *gin.Engine
@@ -19,8 +19,6 @@ var dbpool *pgxpool.Pool
 var configEditor, colorsEditor *viper.Viper
 
 func main() {
-	var err error
-
 	configEditor = viper.New()
 	configEditor.SetConfigName("config")
 	configEditor.SetConfigType("yaml")
@@ -34,18 +32,14 @@ func main() {
 	colorsEditor.ReadInConfig()
 
 	authSetup()
-	dbpool, err = pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
-	}
-	defer dbpool.Close()
-	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS candidates")
-	dbpool.Exec(context.Background(), "CREATE TABLE IF NOT EXISTS candidates (id TEXT NOT NULL PRIMARY KEY, name TEXT NOT NULL, description TEXT NOT NULL CHECK (char_length(description) <= 5000), hookstatement TEXT NOT NULL CHECK (char_length(hookstatement) <= 150), keywords TEXT[] CHECK (array_length(keywords, 1) <= 6))")
+	createTables()
 	searchSetup()
 	gob.Register(map[string]interface{}{})
 
 	r = gin.Default()
+	r.SetFuncMap(template.FuncMap{
+		"contains": slices.Contains[[]string, string],
+	})
 	r.StaticFile("/favicon.ico", "./static/favicon.ico")
 	r.StaticFile("/style.css", "./css/output.css")
 	r.StaticFile("/icon.png", "./static/icon.png")
@@ -55,6 +49,7 @@ func main() {
 
 	loginRoutes()
 	adminRoutes()
+	voteRoutes()
 
 	r.GET("/", authMiddleware(), func(c *gin.Context) {
 		query := c.DefaultQuery("q", "")
@@ -66,37 +61,21 @@ func main() {
 			"text": candidates,
 		})
 	})
-	r.GET("/:candidate", authMiddleware(), func(c *gin.Context) {
-		name := c.Param("candidate")
-		var userId string
-		var description string
-		var hookstatement string
-		var keywords []string
-		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1", name).Scan(&userId, &name, &description, &hookstatement, &keywords)
-		if err != nil {
-			c.String(http.StatusNotFound, "Candidate not found: %v", err)
-			return
-		}
-		c.HTML(http.StatusOK, "candidate.tmpl", gin.H{
-			"userId":        userId,
-			"name":          name,
-			"description":   description,
-			"hookstatement": hookstatement,
-			"keywords":      keywords,
-		})
-	})
 	r.GET("/profile", candidateAuthMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
 		var userId string
 		var description string
 		var hookstatement string
 		var keywords []string
-		dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE id = $1", session.Get("user_id")).Scan(&userId, nil, &description, &hookstatement, &keywords)
+		var positions []string
+		dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE id = $1", session.Get("user_id")).Scan(&userId, nil, &description, &hookstatement, &keywords, &positions)
 		c.HTML(http.StatusOK, "profile.tmpl", gin.H{
 			"userId":        userId,
 			"description":   description,
 			"hookstatement": hookstatement,
 			"keywords":      keywords,
+			"positions":     positions,
+			"allpositions":  configEditor.GetStringSlice("positions"),
 		})
 	})
 	r.POST("/profile", candidateAuthMiddleware(), func(c *gin.Context) {
@@ -106,12 +85,13 @@ func main() {
 		description := c.PostForm("description")
 		hookstatement := c.PostForm("hookstatement")
 		tags := c.PostFormArray("tag[]")
-		_, err := dbpool.Exec(context.Background(), "INSERT INTO candidates (id, name, description, hookstatement, keywords) VALUES ($1, $2, $3, $4, $5) ON CONFLICT(id) DO UPDATE SET id = $1, name = $2, description = $3, hookstatement = $4, keywords = $5", userID, name, description, hookstatement, tags)
+		positions := c.PostFormArray("position[]")
+		_, err := dbpool.Exec(context.Background(), "INSERT INTO candidates (id, name, description, hookstatement, keywords, positions) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT(id) DO UPDATE SET id = $1, name = $2, description = $3, hookstatement = $4, keywords = $5, positions = $6", userID, name, description, hookstatement, tags, positions)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to upsert candidate: %v", err)
 			return
 		} else {
-			index(userID, name, description, hookstatement, tags)
+			index(userID, name, description, hookstatement, tags, positions)
 		}
 		c.Redirect(http.StatusSeeOther, "/"+name)
 	})
