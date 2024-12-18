@@ -1,10 +1,11 @@
 <button
-        hx-post="/votes/toggle"
+        hx-post="/vote"
         hx-swap="outerHTML"
         hx-target="this"
         hx-include="[name=position], [name=candidate]"
         class="btn btn-success {{ if .voted }}{{ else }}btn-outline{{ end }}">
-    {{ if .voted }}Unvote{{ else }}Upvote{{ end }}
+    {{ if .voted }}Remove Vote{{ else }}Upvote{{ end }}
+    <input type="hidden" name="position" value="{{ .position }}">
+    <input type="hidden" name="candidate" value="{{ .candidate }}">
 </button>
-<input type="hidden" name="position" value="{{ .position }}">
-<input type="hidden" name="candidate" value="{{ .candidate }}">
+

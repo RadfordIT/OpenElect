@@ -25,15 +25,15 @@
     {{ end }}
     {{ range .positions }}
         <button
-                hx-post="/votes/toggle"
+                hx-post="/vote"
                 hx-swap="outerHTML"
                 hx-target="this"
                 hx-include="[name=position], [name=candidate]"
                 hx-trigger="load"
                 >
+            <input type="hidden" name="position" value="{{ . }}">
+            <input type="hidden" name="candidate" value="{{ $.userId }}">
         </button>
-        <input type="hidden" name="position" value="{{ . }}">
-        <input type="hidden" name="candidate" value="{{ .userId }}">
     {{ end }}
 </div>
 {{ template "footer.tmpl" }}

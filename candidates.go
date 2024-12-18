@@ -8,7 +8,7 @@ import (
 )
 
 func createTables() {
-	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS candidates")
+	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS candidates,votes")
 	dbpool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS candidates (
     	id TEXT NOT NULL PRIMARY KEY, 
     	name TEXT NOT NULL, 
@@ -19,7 +19,7 @@ func createTables() {
     )`)
 	dbpool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS votes (
     	vote_id SERIAL PRIMARY KEY,
-    	candidate TEXT NOT NULL,
+    	candidate_id TEXT NOT NULL,
     	voter_id TEXT NOT NULL,
     	position TEXT NOT NULL,
     	UNIQUE(candidate_id, voter_id, position)
@@ -51,37 +51,37 @@ func voteRoutes() {
 
 	r.POST("/vote", authMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
-		candidate := c.PostForm("candidate")
+		candidate_id := c.PostForm("candidate")
 		position := c.PostForm("position")
 		user := session.Get("user_id").(string)
 		var voted bool
 		err := dbpool.QueryRow(context.Background(),
-			"SELECT EXISTS(SELECT 1 FROM votes WHERE candidate = $1 AND voter_id = $2 AND position = $3)", candidate, user, position,
+			"SELECT EXISTS(SELECT 1 FROM votes WHERE candidate_id = $1 AND voter_id = $2 AND position = $3)", candidate_id, user, position,
 		).Scan(&voted)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to check vote: %v", err)
 			return
 		}
 		if voted {
-			_, err = dbpool.Exec(context.Background(), "DELETE FROM votes WHERE candidate = $1 AND voter_id = $2 AND position = $3", candidate, user, position)
+			_, err = dbpool.Exec(context.Background(), "DELETE FROM votes WHERE candidate_id = $1 AND voter_id = $2 AND position = $3", candidate_id, user, position)
 			if err != nil {
 				c.String(http.StatusInternalServerError, "Failed to delete vote: %v", err)
 				return
 			}
-			c.HTML(http.StatusOK, "vote.tmpl", gin.H{
+			c.HTML(http.StatusOK, "votebutton.tmpl", gin.H{
 				"voted":     false,
-				"candidate": candidate,
+				"candidate": candidate_id,
 				"position":  position,
 			})
 		} else {
-			_, err = dbpool.Exec(context.Background(), "INSERT INTO votes (candidate, voter_id, position) VALUES ($1, $2, $3)", candidate, user, position)
+			_, err = dbpool.Exec(context.Background(), "INSERT INTO votes (candidate_id, voter_id, position) VALUES ($1, $2, $3)", candidate_id, user, position)
 			if err != nil {
 				c.String(http.StatusInternalServerError, "Failed to insert vote: %v", err)
 				return
 			}
-			c.HTML(http.StatusOK, "vote.tmpl", gin.H{
+			c.HTML(http.StatusOK, "votebutton.tmpl", gin.H{
 				"voted":     true,
-				"candidate": candidate,
+				"candidate": candidate_id,
 				"position":  position,
 			})
 		}
