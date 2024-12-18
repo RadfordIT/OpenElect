@@ -23,9 +23,10 @@
     {{ range .keywords }}
         <div class="badge badge-primary">{{.}}</div>
     {{ end }}
+    <br>
     {{ range .positions }}
         <button
-                hx-post="/vote"
+                hx-post="/vote?vote=false"
                 hx-swap="outerHTML"
                 hx-target="this"
                 hx-include="[name=position], [name=candidate]"

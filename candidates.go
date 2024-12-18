@@ -8,7 +8,7 @@ import (
 )
 
 func createTables() {
-	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS candidates,votes")
+	dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS candidates,votes")
 	dbpool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS candidates (
     	id TEXT NOT NULL PRIMARY KEY, 
     	name TEXT NOT NULL, 
@@ -60,6 +60,23 @@ func voteRoutes() {
 		).Scan(&voted)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to check vote: %v", err)
+			return
+		}
+		vote := c.DefaultQuery("vote", "true")
+		if vote == "false" {
+			if voted {
+				c.HTML(http.StatusOK, "votebutton.tmpl", gin.H{
+					"voted":     true,
+					"candidate": candidate_id,
+					"position":  position,
+				})
+			} else {
+				c.HTML(http.StatusOK, "votebutton.tmpl", gin.H{
+					"voted":     false,
+					"candidate": candidate_id,
+					"position":  position,
+				})
+			}
 			return
 		}
 		if voted {
