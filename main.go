@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/gob"
+	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -11,6 +12,7 @@ import (
 	"html/template"
 	"math/rand"
 	"net/http"
+	"os"
 	"slices"
 )
 
@@ -30,6 +32,14 @@ func main() {
 	colorsEditor.SetConfigType("json")
 	colorsEditor.AddConfigPath("./config")
 	colorsEditor.ReadInConfig()
+
+	var err error
+	dbpool, err = pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
+	}
+	defer dbpool.Close()
 
 	authSetup()
 	createTables()
