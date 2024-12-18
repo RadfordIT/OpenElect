@@ -27,9 +27,8 @@ func authMiddleware() gin.HandlerFunc {
 		session := sessions.Default(c)
 		token := session.Get("user_id")
 		if token == nil {
-			c.String(http.StatusUnauthorized, "Unauthorized")
 			c.Abort()
-			return
+			c.Redirect(http.StatusFound, "/login")
 		}
 		c.Next()
 	}
@@ -209,5 +208,16 @@ func loginRoutes() {
 			pfp = "./pfp/default_pfp.jpg"
 		}
 		http.ServeFile(c.Writer, c.Request, pfp.(string))
+	})
+	r.GET("/logout", func(c *gin.Context) {
+		session := sessions.Default(c)
+		session.Clear()
+		session.Save()
+		logoutURL := fmt.Sprintf(
+			"https://login.microsoftonline.com/%s/oauth2/v2.0/logout?post_logout_redirect_uri=%s",
+			tenantID,
+			"http://localhost:8080/login",
+		)
+		c.Redirect(http.StatusFound, logoutURL)
 	})
 }
