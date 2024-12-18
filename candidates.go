@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -51,14 +52,15 @@ func voteRoutes() {
 
 	r.POST("/vote", authMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
-		candidate_id := c.PostForm("candidate")
-		position := c.PostForm("position")
+		candidate_id := c.Query("candidate")
+		position := c.Query("position")
 		user := session.Get("user_id").(string)
 		var voted bool
 		err := dbpool.QueryRow(context.Background(),
 			"SELECT EXISTS(SELECT 1 FROM votes WHERE candidate_id = $1 AND voter_id = $2 AND position = $3)", candidate_id, user, position,
 		).Scan(&voted)
 		if err != nil {
+			fmt.Println(err)
 			c.String(http.StatusInternalServerError, "Failed to check vote: %v", err)
 			return
 		}

@@ -25,15 +25,13 @@
     {{ end }}
     <br>
     {{ range .positions }}
+        <p>Position: {{ . }}</p>
         <button
-                hx-post="/vote?vote=false"
+                hx-post="/vote?vote=false&position={{ replace . }}&candidate={{ $.userId }}"
                 hx-swap="outerHTML"
                 hx-target="this"
-                hx-include="[name=position], [name=candidate]"
                 hx-trigger="load"
                 >
-            <input type="hidden" name="position" value="{{ . }}">
-            <input type="hidden" name="candidate" value="{{ $.userId }}">
         </button>
     {{ end }}
 </div>

@@ -35,3 +35,10 @@ services:
       - .:/OpenElect
     tty: true
     command: ["npx", "tailwindcss", "-i", "./css/styles.css", "-o", "./css/output.css", "--watch"]
+
+  admin:
+    image: "adminer"
+    ports:
+      - "8081:8080"
+    depends_on:
+        - postgres

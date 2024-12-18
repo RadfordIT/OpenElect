@@ -1,11 +1,8 @@
 <button
-        hx-post="/vote"
+        hx-post="/vote?position={{ replace .position }}&candidate={{ .candidate }}"
         hx-swap="outerHTML"
         hx-target="this"
-        hx-include="[name=position], [name=candidate]"
         class="btn btn-success {{ if .voted }}{{ else }}btn-outline{{ end }}">
-    {{ if .voted }}Remove Vote{{ else }}Upvote{{ end }}
-    <input type="hidden" name="position" value="{{ .position }}">
-    <input type="hidden" name="candidate" value="{{ .candidate }}">
+    {{ if .voted }}Remove Vote{{ else }}Vote {{ .candidate }} for {{.position}}{{ end }}
 </button>
 

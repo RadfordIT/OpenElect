@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 	"slices"
+	"strings"
 )
 
 var r *gin.Engine
@@ -49,6 +50,9 @@ func main() {
 	r = gin.Default()
 	r.SetFuncMap(template.FuncMap{
 		"contains": slices.Contains[[]string, string],
+		"replace": func(toEscape string) string {
+			return strings.ReplaceAll(toEscape, " ", "%20")
+		},
 	})
 	r.StaticFile("/favicon.ico", "./static/favicon.ico")
 	r.StaticFile("/style.css", "./css/output.css")
