@@ -97,5 +97,11 @@
             e.target.closest(".badge").remove();
         }
     });
+    document.getElementById("tag-input").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            document.getElementById("add-tag-button").click();
+        }
+    });
 </script>
 {{ template "footer.tmpl" }}

@@ -148,7 +148,10 @@ func main() {
 			return
 		}
 		session.AddFlash("Your profile has been submitted for review.")
-		session.Save()
+		err := session.Save()
+		if err != nil {
+			fmt.Println(err)
+		}
 		c.Redirect(http.StatusSeeOther, "/")
 	})
 	r.Run()
