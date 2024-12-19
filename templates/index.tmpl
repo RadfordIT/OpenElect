@@ -11,9 +11,9 @@
                     Radford College
                 </p>
                 <div class="flex join">
-                    <form onsubmit="search()" class="flex items-center justify-center w-full">
+                    <form id="searchForm" class="flex items-center justify-center w-full">
                         <label class="input input-bordered flex flex-1 items-center gap-2 join-item">
-                            <input type="text" class="grow" placeholder="Search through candidates" id="query"/>
+                            <input type="text" class="grow" placeholder="Search through candidates" id="queryInput"/>
                             <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 16 16"
@@ -61,9 +61,10 @@
     </div>
 {{ end }}
 <script type="text/javascript">
-    function search() {
-        const query = document.getElementById('query').value;
-        window.location.href = '/?q=' + query;
-    }
+    document.getElementById('searchForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const inputValue = document.getElementById('queryInput').value;
+        window.location.href = `/?q=${encodeURIComponent(inputValue)}`;
+    });
 </script>
 {{ template "footer.tmpl" }}

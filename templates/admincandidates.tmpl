@@ -1,0 +1,18 @@
+{{ template "header.tmpl" }}
+<div class="md:container md:mx-auto">
+    {{ range .candidates }}
+        <div class="card bg-base-100 w-96 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">{{ .Name }}</h2>
+                <p>{{ .HookStatement }}</p>
+                <div class="card-actions justify-end">
+                    <a class="btn btn-primary" href="/admin/candidates/{{ .Name }}">Learn More</a>
+                </div>
+                {{ range .Keywords }}
+                    <div class="badge badge-primary">{{ . }}</div>
+                {{ end }}
+            </div>
+        </div>
+    {{ end }}
+</div>
+{{ template "footer.tmpl" }}

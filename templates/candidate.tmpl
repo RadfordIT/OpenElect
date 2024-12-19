@@ -35,6 +35,10 @@
                     >
             </button>
         {{ end }}
+    {{ else if .admin}}
+        {{ range .positions }}
+            <p>Position: {{ . }}</p>
+        {{ end }}
     {{ else }}
         <a class="btn btn-error" href="/profile">Go Back</a>
         <form method="post" action="/preview">

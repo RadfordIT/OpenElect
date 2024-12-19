@@ -107,8 +107,8 @@ func main() {
 		positions := c.PostFormArray("position[]")
 		_, err := dbpool.Exec(context.Background(),
 			`INSERT INTO candidates 
-    			(id, name, description, hookstatement, keywords, positions, published) VALUES ($1, $2, $3, $4, $5, $6, FALSE)
-				ON CONFLICT(id) DO UPDATE SET id = $1, name = $2, description = $3, hookstatement = $4, keywords = $5, positions = $6, published = FALSE`,
+    			(id, name, description, hookstatement, keywords, positions, published) VALUES ($1, $2, $3, $4, $5, $6, NULL)
+				ON CONFLICT(id) DO UPDATE SET id = $1, name = $2, description = $3, hookstatement = $4, keywords = $5, positions = $6, published = NULL`,
 			userID, name, description, hookstatement, tags, positions,
 		)
 		if err != nil {
@@ -125,7 +125,7 @@ func main() {
 		var hookstatement string
 		var keywords []string
 		var positions []string
-		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published = FALSE", name).Scan(&userId, &name, &description, &hookstatement, &keywords, &positions, nil)
+		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published = NULL", name).Scan(&userId, &name, &description, &hookstatement, &keywords, &positions, nil)
 		if err != nil {
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
 			return
@@ -137,13 +137,14 @@ func main() {
 			"hookstatement": hookstatement,
 			"keywords":      keywords,
 			"published":     false,
+			"admin":         false,
 			"positions":     positions,
 		})
 	})
 	r.POST("/preview", candidateAuthMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
 		name := session.Get("name").(string)
-		_, err = dbpool.Exec(context.Background(), "UPDATE candidates SET published = TRUE WHERE name = $1", name)
+		_, err = dbpool.Exec(context.Background(), "UPDATE candidates SET published = FALSE WHERE name = $1", name)
 		if err != nil {
 			fmt.Println(err)
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)

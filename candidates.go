@@ -17,7 +17,7 @@ func createTables() {
     	hookstatement TEXT NOT NULL CHECK (char_length(hookstatement) <= 150), 
     	keywords TEXT[] CHECK (array_length(keywords, 1) <= 6), 
     	positions TEXT[],
-    	published BOOLEAN DEFAULT FALSE
+    	published BOOLEAN DEFAULT NULL
     )`)
 	dbpool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS votes (
     	vote_id SERIAL PRIMARY KEY,
@@ -48,6 +48,7 @@ func voteRoutes() {
 			"hookstatement": hookstatement,
 			"keywords":      keywords,
 			"published":     true,
+			"admin":         false,
 			"positions":     positions,
 		})
 	})
