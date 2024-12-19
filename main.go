@@ -74,7 +74,6 @@ func main() {
 		})
 		flashes := session.Flashes()
 		session.Save()
-		fmt.Println(flashes)
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
 			"text":    candidates,
 			"flashes": flashes,
@@ -125,7 +124,7 @@ func main() {
 		var hookstatement string
 		var keywords []string
 		var positions []string
-		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published = NULL", name).Scan(&userId, &name, &description, &hookstatement, &keywords, &positions, nil)
+		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS NULL", name).Scan(&userId, &name, &description, &hookstatement, &keywords, &positions, nil)
 		if err != nil {
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
 			return
@@ -150,6 +149,7 @@ func main() {
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
 			return
 		}
+		deindex(session.Get("user_id").(string))
 		session.AddFlash("Your profile has been submitted for review.")
 		err := session.Save()
 		if err != nil {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -45,6 +46,7 @@ func adminRoutes() {
 		c.Redirect(http.StatusSeeOther, "/admin")
 	})
 	r.GET("/admin/candidates", adminAuthMiddleware(), func(c *gin.Context) {
+		session := sessions.Default(c)
 		rows, err := dbpool.Query(context.Background(), "SELECT * FROM candidates WHERE published IS FALSE")
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to query candidates: %v", err)
@@ -53,7 +55,7 @@ func adminRoutes() {
 		var candidates []Candidate
 		for rows.Next() {
 			var candidate Candidate
-			err = rows.Scan(&candidate.ID, &candidate.Name, &candidate.Keywords, &candidate.HookStatement, &candidate.Description, &candidate.Positions)
+			err = rows.Scan(&candidate.ID, &candidate.Name, &candidate.Description, &candidate.HookStatement, &candidate.Keywords, &candidate.Positions, nil)
 			if err != nil {
 				c.String(http.StatusInternalServerError, "Failed to scan candidate: %v", err)
 				return
@@ -62,7 +64,9 @@ func adminRoutes() {
 		}
 		c.HTML(http.StatusOK, "admincandidates.tmpl", gin.H{
 			"candidates": candidates,
+			"flashes":    session.Flashes(),
 		})
+		session.Save()
 	})
 	r.GET("/admin/candidates/:name", adminAuthMiddleware(), func(c *gin.Context) {
 		name := c.Param("name")
@@ -71,7 +75,7 @@ func adminRoutes() {
 		var hookstatement string
 		var keywords []string
 		var positions []string
-		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published = TRUE", name).Scan(&userId, &name, &description, &hookstatement, &keywords, &positions, nil)
+		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS FALSE", name).Scan(&userId, &name, &description, &hookstatement, &keywords, &positions, nil)
 		if err != nil {
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
 			return
@@ -86,5 +90,40 @@ func adminRoutes() {
 			"admin":         true,
 			"positions":     positions,
 		})
+	})
+	r.POST("/admin/candidates/:name/reject", adminAuthMiddleware(), func(c *gin.Context) {
+		session := sessions.Default(c)
+		name := c.Param("name")
+		_, err := dbpool.Exec(context.Background(), "DELETE FROM candidates WHERE name = $1", name)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to reject candidate: %v", err)
+			return
+		}
+		session.AddFlash("Candidate " + name + " successfully rejected")
+		session.Save()
+		c.Redirect(http.StatusSeeOther, "/admin/candidates")
+	})
+	r.POST("/admin/candidates/:name/accept", adminAuthMiddleware(), func(c *gin.Context) {
+		session := sessions.Default(c)
+		name := c.Param("name")
+		_, err := dbpool.Exec(context.Background(), "UPDATE candidates SET published = TRUE WHERE name = $1", name)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to publish candidate: %v", err)
+			return
+		}
+		var userId string
+		var description string
+		var hookstatement string
+		var keywords []string
+		var positions []string
+		err = dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS TRUE", name).Scan(&userId, &name, &description, &hookstatement, &keywords, &positions, nil)
+		if err != nil {
+			c.String(http.StatusNotFound, "Candidate not found: %v", err)
+			return
+		}
+		index(userId, name, description, hookstatement, keywords, positions)
+		session.AddFlash("Candidate " + name + " successfully accepted")
+		session.Save()
+		c.Redirect(http.StatusSeeOther, "/admin/candidates")
 	})
 }

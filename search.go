@@ -103,3 +103,7 @@ func index(id string, name string, description string, hookstatement string, key
 		Positions:     positions,
 	})
 }
+
+func deindex(id string) {
+	client.Collection("candidates").Document(id).Delete(context.Background())
+}
