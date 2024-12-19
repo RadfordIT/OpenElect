@@ -34,14 +34,18 @@ func adminRoutes() {
 				"warningContent",
 			},
 			"positions": configEditor.GetStringSlice("positions"),
+			"maxVotes":  configEditor.GetInt("maxVotes"),
 		})
 	})
 	r.POST("/admin", adminAuthMiddleware(), func(c *gin.Context) {
 		colors := c.PostFormMap("colors")
 		colorsEditor.Set("colors", colors)
 		colorsEditor.WriteConfig()
+
 		positions := c.PostFormArray("position[]")
 		configEditor.Set("positions", positions)
+		maxVotes := c.PostForm("maxVotes")
+		configEditor.Set("maxVotes", maxVotes)
 		configEditor.WriteConfig()
 		c.Redirect(http.StatusSeeOther, "/admin")
 	})

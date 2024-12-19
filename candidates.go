@@ -67,17 +67,27 @@ func voteRoutes() {
 			c.String(http.StatusInternalServerError, "Failed to check vote: %v", err)
 			return
 		}
+		var numVotes int
+		err = dbpool.QueryRow(context.Background(), "SELECT COUNT(*) FROM votes WHERE voter_id = $1", user).Scan(&numVotes)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to check vote count: %v", err)
+			return
+		}
+		maxVotes := configEditor.GetInt("max_votes")
+
 		vote := c.DefaultQuery("vote", "true")
 		if vote == "false" {
 			if voted {
 				c.HTML(http.StatusOK, "votebutton.tmpl", gin.H{
 					"voted":     true,
+					"canVote":   numVotes < maxVotes,
 					"candidate": candidate_id,
 					"position":  position,
 				})
 			} else {
 				c.HTML(http.StatusOK, "votebutton.tmpl", gin.H{
 					"voted":     false,
+					"canVote":   numVotes < maxVotes,
 					"candidate": candidate_id,
 					"position":  position,
 				})
@@ -92,6 +102,7 @@ func voteRoutes() {
 			}
 			c.HTML(http.StatusOK, "votebutton.tmpl", gin.H{
 				"voted":     false,
+				"canVote":   numVotes-1 < maxVotes,
 				"candidate": candidate_id,
 				"position":  position,
 			})
@@ -103,6 +114,7 @@ func voteRoutes() {
 			}
 			c.HTML(http.StatusOK, "votebutton.tmpl", gin.H{
 				"voted":     true,
+				"canVote":   numVotes+1 < maxVotes,
 				"candidate": candidate_id,
 				"position":  position,
 			})
