@@ -66,14 +66,17 @@ func main() {
 	voteRoutes()
 
 	r.GET("/", authMiddleware(), func(c *gin.Context) {
+		session := sessions.Default(c)
 		query := c.DefaultQuery("q", "")
 		candidates := search(query)
 		rand.Shuffle(len(candidates), func(i, j int) {
 			candidates[i], candidates[j] = candidates[j], candidates[i]
 		})
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"text": candidates,
+			"text":  candidates,
+			"flash": session.Flashes(),
 		})
+		session.Save()
 	})
 	r.GET("/profile", candidateAuthMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
@@ -82,7 +85,7 @@ func main() {
 		var hookstatement string
 		var keywords []string
 		var positions []string
-		dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE id = $1", session.Get("user_id")).Scan(&userId, nil, &description, &hookstatement, &keywords, &positions)
+		dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE id = $1", session.Get("user_id")).Scan(&userId, nil, &description, &hookstatement, &keywords, &positions, nil)
 		c.HTML(http.StatusOK, "profile.tmpl", gin.H{
 			"userId":        userId,
 			"description":   description,
@@ -100,14 +103,53 @@ func main() {
 		hookstatement := c.PostForm("hookstatement")
 		tags := c.PostFormArray("tag[]")
 		positions := c.PostFormArray("position[]")
-		_, err := dbpool.Exec(context.Background(), "INSERT INTO candidates (id, name, description, hookstatement, keywords, positions) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT(id) DO UPDATE SET id = $1, name = $2, description = $3, hookstatement = $4, keywords = $5, positions = $6", userID, name, description, hookstatement, tags, positions)
+		_, err := dbpool.Exec(context.Background(),
+			`INSERT INTO candidates 
+    			(id, name, description, hookstatement, keywords, positions, published) VALUES ($1, $2, $3, $4, $5, $6, FALSE)
+				ON CONFLICT(id) DO UPDATE SET id = $1, name = $2, description = $3, hookstatement = $4, keywords = $5, positions = $6, published = FALSE`,
+			userID, name, description, hookstatement, tags, positions,
+		)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to upsert candidate: %v", err)
 			return
-		} else {
-			index(userID, name, description, hookstatement, tags, positions)
 		}
-		c.Redirect(http.StatusSeeOther, "/"+name)
+		c.Redirect(http.StatusSeeOther, "/preview")
+	})
+	r.GET("/preview", candidateAuthMiddleware(), func(c *gin.Context) {
+		session := sessions.Default(c)
+		name := session.Get("name").(string)
+		userId := session.Get("user_id").(string)
+		var description string
+		var hookstatement string
+		var keywords []string
+		var positions []string
+		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published = FALSE", name).Scan(&userId, &name, &description, &hookstatement, &keywords, &positions, nil)
+		if err != nil {
+			c.String(http.StatusNotFound, "Candidate not found: %v", err)
+			return
+		}
+		c.HTML(http.StatusOK, "candidate.tmpl", gin.H{
+			"userId":        userId,
+			"name":          name,
+			"description":   description,
+			"hookstatement": hookstatement,
+			"keywords":      keywords,
+			"published":     false,
+			"positions":     positions,
+		})
+	})
+	r.POST("/preview", candidateAuthMiddleware(), func(c *gin.Context) {
+		session := sessions.Default(c)
+		name := session.Get("name").(string)
+		_, err = dbpool.Exec(context.Background(), "UPDATE candidates SET published = TRUE WHERE name = $1", name)
+		if err != nil {
+			fmt.Println(err)
+			c.String(http.StatusNotFound, "Candidate not found: %v", err)
+			return
+		}
+		session.AddFlash("Your profile has been submitted for review.")
+		session.Save()
+		c.Redirect(http.StatusSeeOther, "/")
 	})
 	r.Run()
 }

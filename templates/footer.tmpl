@@ -1,4 +1,11 @@
 {{ define "footer.tmpl" }}
+    {{ range .flashes }}
+        <div class="toast toast-start">
+            <div class="alert alert-success">
+                <span>{{ . }}</span>
+            </div>
+        </div>
+    {{ end }}
     <footer class="footer bg-base-200 text-base-content p-10 mt-3">
         <aside>
             <svg

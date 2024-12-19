@@ -16,7 +16,8 @@ func createTables() {
     	description TEXT NOT NULL CHECK (char_length(description) <= 5000), 
     	hookstatement TEXT NOT NULL CHECK (char_length(hookstatement) <= 150), 
     	keywords TEXT[] CHECK (array_length(keywords, 1) <= 6), 
-    	positions TEXT[]
+    	positions TEXT[],
+    	published BOOLEAN DEFAULT FALSE
     )`)
 	dbpool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS votes (
     	vote_id SERIAL PRIMARY KEY,
@@ -35,7 +36,7 @@ func voteRoutes() {
 		var hookstatement string
 		var keywords []string
 		var positions []string
-		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1", name).Scan(&userId, &name, &description, &hookstatement, &keywords, &positions)
+		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published = TRUE", name).Scan(&userId, &name, &description, &hookstatement, &keywords, &positions, nil)
 		if err != nil {
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
 			return
@@ -46,6 +47,7 @@ func voteRoutes() {
 			"description":   description,
 			"hookstatement": hookstatement,
 			"keywords":      keywords,
+			"published":     true,
 			"positions":     positions,
 		})
 	})

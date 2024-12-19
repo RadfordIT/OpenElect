@@ -24,15 +24,22 @@
         <div class="badge badge-primary">{{.}}</div>
     {{ end }}
     <br>
-    {{ range .positions }}
-        <p>Position: {{ . }}</p>
-        <button
-                hx-post="/vote?vote=false&position={{ replace . }}&candidate={{ $.userId }}"
-                hx-swap="outerHTML"
-                hx-target="this"
-                hx-trigger="load"
-                >
-        </button>
+    {{ if .published }}
+        {{ range .positions }}
+            <p>Position: {{ . }}</p>
+            <button
+                    hx-post="/vote?vote=false&position={{ replace . }}&candidate={{ $.userId }}"
+                    hx-swap="outerHTML"
+                    hx-target="this"
+                    hx-trigger="load"
+                    >
+            </button>
+        {{ end }}
+    {{ else }}
+        <a class="btn btn-error" href="/profile">Go Back</a>
+        <form method="post" action="/preview">
+            <button class="btn btn-primary" type="submit">Submit for Review</button>
+        </form>
     {{ end }}
 </div>
-{{ template "footer.tmpl" }}
+{{ template "footer.tmpl" . }}

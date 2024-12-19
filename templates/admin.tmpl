@@ -1,11 +1,13 @@
 {{ template "header.tmpl" }}
 <div class="md:container md:mx-auto">
     <form action="/admin" method="post" enctype="application/x-www-form-urlencoded">
+        <h1 class="text-3xl font-bold mt-3">Colors</h1>
         {{ range .colorNames }}
             <label for="{{ . }}">{{ . }}</label>
             <input type="color" id="{{ . }}" name="colors[{{ . }}]" value="{{ index $.colors . }}">
             <br>
         {{ end }}
+        <h1 class="text-3xl font-bold mb-2 mt-3">Positions</h1>
         <div id="position-container" class="flex flex-wrap gap-2">
             {{ range .positions }}
                 <div class="badge badge-primary flex items-center gap-2">
@@ -15,7 +17,7 @@
                 </div>
             {{ end }}
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 mt-2 mb-4">
             <input
                     type="text"
                     name="position"
@@ -26,7 +28,6 @@
         </div>
         <button class="btn btn-primary" type="submit">Save</button>
     </form>
-    {{ .colors }}
 </div>
 <template id="position-template">
     <div class="badge badge-primary flex items-center gap-2">
@@ -52,6 +53,13 @@
     document.getElementById("position-container").addEventListener("click", (e) => {
         if (e.target.classList.contains("remove-position-button")) {
             e.target.closest(".badge").remove();
+        }
+    });
+
+    document.getElementById("position-input").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            document.getElementById("add-position-button").click();
         }
     });
 </script>

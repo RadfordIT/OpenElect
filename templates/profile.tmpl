@@ -52,13 +52,13 @@
         <h1 class="text-2xl font-bold mt-4">Positions</h1>
         {{ range .allpositions }}
             <div class="form-control">
-                <label class="label cursor-pointer">
+                <label class="label cursor-pointer text-left">
                     <input type="checkbox" name="position[]" class="checkbox checkbox-primary" {{ if contains $.positions . }}checked{{ end }} value="{{ . }}" />
                     <span class="label-text">{{ . }}</span>
                 </label>
             </div>
         {{ end }}
-        <button type="submit" class="btn btn-success w-full mt-4">Submit</button>
+        <button type="submit" class="btn btn-success w-full mt-4">Preview Changes</button>
     </form>
 
     <template id="tag-template">
@@ -71,7 +71,7 @@
 </div>
 <script type="text/javascript">
     var editor = new TinyMDE.Editor({
-        element: "editor",
+        textarea: "editor",
         content: "{{ .description }}",
     });
     var commandBar = new TinyMDE.CommandBar({
