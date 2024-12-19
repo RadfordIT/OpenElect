@@ -72,11 +72,13 @@ func main() {
 		rand.Shuffle(len(candidates), func(i, j int) {
 			candidates[i], candidates[j] = candidates[j], candidates[i]
 		})
-		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"text":  candidates,
-			"flash": session.Flashes(),
-		})
+		flashes := session.Flashes()
 		session.Save()
+		fmt.Println(flashes)
+		c.HTML(http.StatusOK, "index.tmpl", gin.H{
+			"text":    candidates,
+			"flashes": flashes,
+		})
 	})
 	r.GET("/profile", candidateAuthMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)

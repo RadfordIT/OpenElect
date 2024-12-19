@@ -53,6 +53,13 @@
     </div>
 {{ end }}
 </div>
+{{ range .flashes }}
+    <div class="toast toast-start">
+        <div class="alert alert-success">
+            <span>{{ . }}</span>
+        </div>
+    </div>
+{{ end }}
 <script type="text/javascript">
     function search() {
         const query = document.getElementById('query').value;
