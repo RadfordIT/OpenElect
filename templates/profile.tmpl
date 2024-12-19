@@ -3,8 +3,7 @@
     <form id="main-form" class="mt-4" action="/profile" method="post" enctype="multipart/form-data">
         <label class="form-control">
             <div class="label">
-                <span class="label-text">Your bio</span>
-                <span class="label-text-alt">Alt label</span>
+                <h1 class="text-2xl font-bold mt-4">Description (markdown supported)</h1>
             </div>
             <div class="editorcontainer">
                 <div id="toolbar"></div>
@@ -14,23 +13,20 @@
         </label>
         <label class="form-control">
             <div class="label">
-                <span class="label-text">Hook Statement</span>
-                <span class="label-text-alt">Alt label</span>
+                <h1 class="text-2xl font-bold mt-4">Hook Statement</h1>
             </div>
             <input required type="text" placeholder="Hook Statement" class="input input-bordered w-full max-w-xs"
                    name="hookstatement" value="{{ .hookstatement }}">
         </label>
 
         <label class="form-control">
-            <span class="label-text">Video (optional)</span>
+            <h1 class="text-2xl font-bold mt-4">Video (optional)</h1>
             <input
                     type="file"
                     class="file-input file-input-bordered file-input-primary w-full max-w-xs"/>
         </label>
 
-        <label class="form-control">
-            <span class="label-text">Tags</span>
-        </label>
+        <h1 class="text-2xl font-bold mt-4">Tags</h1>
         <div id="tag-container" class="flex flex-wrap gap-2">
             {{ range .keywords }}
                 <div class="badge badge-primary flex items-center gap-2">
@@ -40,7 +36,7 @@
                 </div>
             {{ end }}
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 mt-2">
             <input
                     type="text"
                     name="tag"
@@ -51,11 +47,9 @@
         </div>
         <h1 class="text-2xl font-bold mt-4">Positions</h1>
         {{ range .allpositions }}
-            <div class="form-control">
-                <label class="label cursor-pointer text-left">
-                    <input type="checkbox" name="position[]" class="checkbox checkbox-primary" {{ if contains $.positions . }}checked{{ end }} value="{{ . }}" />
-                    <span class="label-text">{{ . }}</span>
-                </label>
+            <div class="form-control flex flex-row items-center mt-2">
+                <input type="checkbox" name="position[]" class="checkbox checkbox-primary" {{ if contains $.positions . }}checked{{ end }} value="{{ . }}" />
+                <label class="ml-2 cursor-pointer">{{ . }}</label>
             </div>
         {{ end }}
         <button type="submit" class="btn btn-success w-full mt-4">Preview Changes</button>
