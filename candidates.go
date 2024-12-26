@@ -21,9 +21,9 @@ func createTables() {
     )`)
 	dbpool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS votes (
     	vote_id SERIAL PRIMARY KEY,
-    	candidate_id TEXT NOT NULL,
-    	voter_id TEXT NOT NULL,
-    	position TEXT NOT NULL,
+    	candidate_id TEXT NOT NULL CHECK (char_length(candidate_id) > 0),
+    	voter_id TEXT NOT NULL CHECK (char_length(voter_id) > 0),
+    	position TEXT NOT NULL CHECK (char_length(position) > 0),
     	UNIQUE(candidate_id, voter_id, position)
     )`)
 }
