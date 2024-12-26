@@ -3305,6 +3305,10 @@ html {
   margin-right: 0.5rem;
 }
 
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+
 .inline {
   display: inline;
 }
@@ -3566,5 +3570,9 @@ md-block:not([rendered]) {
   .md\:mx-auto {
     margin-left: auto;
     margin-right: auto;
+  }
+
+  .md\:flex {
+    display: flex;
   }
 }

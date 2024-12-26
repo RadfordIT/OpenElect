@@ -25,18 +25,18 @@
     <br>
     <h3 class="text-2xl font-bold">Positions:</h3>
     {{ if .published }}
-        <div class="flex">
+        <div class="md:flex">
             {{ range .positions }}
                 {{ if contains $.votedFor . }}
                     <form action="/vote?position={{ . }}&candidate={{ $.name }}" method="post">
-                        <button class="btn btn-neutral mr-1">
+                        <button class="btn btn-neutral mr-1 mb-1">
                             Remove Vote for {{ $.name }} for {{ . }}
                         </button>
                     </form>
                 {{ else }}
                     <form action="/vote?position={{ . }}&candidate={{ $.name }}" method="post">
                         <button
-                                class="btn btn-primary mr-1"
+                                class="btn btn-primary mr-1 mb-1"
                                 {{ if lt $.votesRemaining 1 }} disabled {{ end }}
                         >
                             Vote {{ $.name }} for {{ . }}
