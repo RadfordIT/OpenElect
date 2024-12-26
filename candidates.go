@@ -30,6 +30,7 @@ func createTables() {
 
 func voteRoutes() {
 	r.GET("/:candidate", authMiddleware(), func(c *gin.Context) {
+		session := sessions.Default(c)
 		name := c.Param("candidate")
 		var userId string
 		var description string
@@ -41,86 +42,55 @@ func voteRoutes() {
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
 			return
 		}
+		var numVotes int
+		user := session.Get("user_id").(string)
+		err = dbpool.QueryRow(context.Background(), "SELECT COUNT(*) FROM votes WHERE voter_id = $1", user).Scan(&numVotes)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to check vote count: %v", err)
+			return
+		}
+		votesRemaining := configEditor.GetInt("maxvotes") - numVotes
 		c.HTML(http.StatusOK, "candidate.tmpl", gin.H{
-			"userId":        userId,
-			"name":          name,
-			"description":   description,
-			"hookstatement": hookstatement,
-			"keywords":      keywords,
-			"published":     true,
-			"admin":         false,
-			"positions":     positions,
+			"userId":         userId,
+			"name":           name,
+			"description":    description,
+			"hookstatement":  hookstatement,
+			"keywords":       keywords,
+			"published":      true,
+			"admin":          false,
+			"positions":      positions,
+			"votesRemaining": votesRemaining,
 		})
 	})
 
 	r.POST("/vote", authMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
-		candidate_id := c.Query("candidate")
-		candidate_name := c.Query("name")
+		candidate := c.Query("candidate")
 		position := c.Query("position")
 		user := session.Get("user_id").(string)
 		var voted bool
 		err := dbpool.QueryRow(context.Background(),
-			"SELECT EXISTS(SELECT 1 FROM votes WHERE candidate_id = $1 AND voter_id = $2 AND position = $3)", candidate_id, user, position,
+			"SELECT EXISTS(SELECT 1 FROM votes WHERE candidate_id = $1 AND voter_id = $2 AND position = $3)", candidate, user, position,
 		).Scan(&voted)
 		if err != nil {
 			fmt.Println(err)
 			c.String(http.StatusInternalServerError, "Failed to check vote: %v", err)
 			return
 		}
-		var numVotes int
-		err = dbpool.QueryRow(context.Background(), "SELECT COUNT(*) FROM votes WHERE voter_id = $1", user).Scan(&numVotes)
-		if err != nil {
-			c.String(http.StatusInternalServerError, "Failed to check vote count: %v", err)
-			return
-		}
-		maxVotes := configEditor.GetInt("max_votes")
-
-		vote := c.DefaultQuery("vote", "true")
-		if vote == "false" {
-			if voted {
-				c.HTML(http.StatusOK, "votebutton.tmpl", gin.H{
-					"voted":     true,
-					"canVote":   numVotes < maxVotes,
-					"candidate": candidate_id,
-					"name":      candidate_name,
-					"position":  position,
-				})
-			} else {
-				c.HTML(http.StatusOK, "votebutton.tmpl", gin.H{
-					"voted":     false,
-					"canVote":   numVotes < maxVotes,
-					"candidate": candidate_id,
-					"name":      candidate_name,
-					"position":  position,
-				})
-			}
-			return
-		}
 		if voted {
-			_, err = dbpool.Exec(context.Background(), "DELETE FROM votes WHERE candidate_id = $1 AND voter_id = $2 AND position = $3", candidate_id, user, position)
+			_, err = dbpool.Exec(context.Background(), "DELETE FROM votes WHERE candidate_id = $1 AND voter_id = $2 AND position = $3", candidate, user, position)
 			if err != nil {
 				c.String(http.StatusInternalServerError, "Failed to delete vote: %v", err)
 				return
 			}
-			c.HTML(http.StatusOK, "votebutton.tmpl", gin.H{
-				"voted":     false,
-				"canVote":   numVotes-1 < maxVotes,
-				"candidate": candidate_id,
-				"position":  position,
-			})
+			c.Redirect(http.StatusFound, "/"+candidate)
 		} else {
-			_, err = dbpool.Exec(context.Background(), "INSERT INTO votes (candidate_id, voter_id, position) VALUES ($1, $2, $3)", candidate_id, user, position)
+			_, err = dbpool.Exec(context.Background(), "INSERT INTO votes (candidate_id, voter_id, position) VALUES ($1, $2, $3)", candidate, user, position)
 			if err != nil {
 				c.String(http.StatusInternalServerError, "Failed to insert vote: %v", err)
 				return
 			}
-			c.HTML(http.StatusOK, "votebutton.tmpl", gin.H{
-				"voted":     true,
-				"canVote":   numVotes+1 < maxVotes,
-				"candidate": candidate_id,
-				"position":  position,
-			})
+			c.Redirect(http.StatusFound, "/"+candidate)
 		}
 	})
 }
