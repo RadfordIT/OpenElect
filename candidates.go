@@ -49,6 +49,22 @@ func voteRoutes() {
 			c.String(http.StatusInternalServerError, "Failed to check vote count: %v", err)
 			return
 		}
+		votedForRows, err := dbpool.Query(context.Background(), "SELECT position FROM votes WHERE candidate_id = $1 AND voter_id = $2", name, user)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to check vote: %v", err)
+			return
+		}
+		var votedFor []string
+		for votedForRows.Next() {
+			var position string
+			err = votedForRows.Scan(&position)
+			if err != nil {
+				c.String(http.StatusInternalServerError, "Failed to scan vote: %v", err)
+				return
+			}
+			votedFor = append(votedFor, position)
+		}
+		fmt.Println(votedFor)
 		votesRemaining := configEditor.GetInt("maxvotes") - numVotes
 		c.HTML(http.StatusOK, "candidate.tmpl", gin.H{
 			"userId":         userId,
@@ -59,6 +75,7 @@ func voteRoutes() {
 			"published":      true,
 			"admin":          false,
 			"positions":      positions,
+			"votedFor":       votedFor,
 			"votesRemaining": votesRemaining,
 		})
 	})

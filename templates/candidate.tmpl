@@ -26,14 +26,22 @@
     <h3 class="text-2xl font-bold">Positions:</h3>
     {{ if .published }}
         {{ range .positions }}
-            <button hx-post="/vote?position={{ replace . }}&candidate={{ $.name }}"
-                    hx-target="body"
-                    hx-swap="outerHTML"
-                    class="btn btn-primary"
-                    {{ if lt $.votesRemaining 1 }} disabled {{ end }}
-            >
-                Vote {{ $.name }} for {{ . }}
-            </button>
+            {{ if contains $.votedFor . }}
+                <form action="/vote?position={{ . }}&candidate={{ $.name }}" method="post">
+                    <button class="btn btn-neutral">
+                        Remove Vote for {{ $.name }} for {{ . }}
+                    </button>
+                </form>
+            {{ else }}
+                <form action="/vote?position={{ . }}&candidate={{ $.name }}" method="post">
+                    <button
+                            class="btn btn-primary"
+                            {{ if lt $.votesRemaining 1 }} disabled {{ end }}
+                    >
+                        Vote {{ $.name }} for {{ . }}
+                    </button>
+                </form>
+            {{ end }}
         {{ end }}
         <p>Votes remaining: {{ .votesRemaining }}</p>
     {{ else if .admin}}
