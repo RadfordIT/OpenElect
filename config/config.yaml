@@ -1,9 +1,9 @@
-maxvotes: 2
+admingroup: OpenElect Admins
+candidategroup: OpenElect Candidates
+maxvotes: 1
 positions:
     - School Captain
     - Vice Captain
     - House Captain
     - Prefect
     - Dirrum Dirrum Captain
-candidategroup: OpenElect Candidates
-admingroup: OpenElect Admins

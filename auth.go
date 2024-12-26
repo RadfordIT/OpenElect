@@ -46,7 +46,7 @@ func candidateAuthMiddleware() gin.HandlerFunc {
 		}
 		groups := session.Get("groups").([]string)
 		if !contains(groups, configEditor.GetString("candidategroup")) {
-			c.String(http.StatusUnauthorized, "Unauthorized")
+			c.String(http.StatusUnauthorized, "Unauthorized: you are not a candidate")
 			c.Abort()
 			return
 		}
@@ -65,7 +65,7 @@ func adminAuthMiddleware() gin.HandlerFunc {
 		}
 		groups := session.Get("groups").([]string)
 		if !contains(groups, configEditor.GetString("admingroup")) {
-			c.String(http.StatusUnauthorized, "Unauthorized")
+			c.String(http.StatusUnauthorized, "Unauthorized: you are not an admin")
 			c.Abort()
 			return
 		}

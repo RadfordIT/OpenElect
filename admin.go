@@ -5,6 +5,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 func adminRoutes() {
@@ -45,7 +46,11 @@ func adminRoutes() {
 
 		positions := c.PostFormArray("position[]")
 		configEditor.Set("positions", positions)
-		maxVotes := c.PostForm("maxvotes")
+		maxVotes, err := strconv.Atoi(c.PostForm("maxvotes"))
+		if err != nil {
+			c.String(http.StatusBadRequest, "Invalid max votes: %v", err)
+			return
+		}
 		configEditor.Set("maxvotes", maxVotes)
 		candidateGroup := c.PostForm("candidategroup")
 		configEditor.Set("candidategroup", candidateGroup)
