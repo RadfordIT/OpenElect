@@ -3301,6 +3301,14 @@ html {
   margin-top: 1rem;
 }
 
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
+.inline {
+  display: inline;
+}
+
 .flex {
   display: flex;
 }
@@ -3399,6 +3407,10 @@ html {
 
 .gap-2 {
   gap: 0.5rem;
+}
+
+.gap-3 {
+  gap: 0.75rem;
 }
 
 .overflow-hidden {
