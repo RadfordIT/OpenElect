@@ -3,6 +3,5 @@
         hx-swap="outerHTML"
         hx-target="this"
         class="btn {{ if .voted }}btn-neutral{{ else }}btn-success {{ if .canVote }}btn-disabled{{ end }}{{ end }}">
-    {{ if .voted }}Remove Vote{{ else }}Vote {{ .candidate }} for {{.position}}{{ end }}
+    {{ if .voted }}Remove Vote{{ else }}Vote {{ .name }} for {{.position}}{{ end }}
 </button>
-

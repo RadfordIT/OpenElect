@@ -3407,10 +3407,6 @@ html {
   --tw-bg-opacity: 0.6;
 }
 
-.fill-current {
-  fill: currentColor;
-}
-
 .object-cover {
   -o-object-fit: cover;
      object-fit: cover;

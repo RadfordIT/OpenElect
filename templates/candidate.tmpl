@@ -28,7 +28,7 @@
         {{ range .positions }}
             <p>Position: {{ . }}</p>
             <button
-                    hx-post="/vote?vote=false&position={{ replace . }}&candidate={{ $.userId }}"
+                    hx-post="/vote?vote=false&position={{ replace . }}&candidate={{ $.userId }}&name={{ $.name }}"
                     hx-swap="outerHTML"
                     hx-target="this"
                     hx-trigger="load"

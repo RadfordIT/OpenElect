@@ -56,6 +56,7 @@ func voteRoutes() {
 	r.POST("/vote", authMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
 		candidate_id := c.Query("candidate")
+		candidate_name := c.Query("name")
 		position := c.Query("position")
 		user := session.Get("user_id").(string)
 		var voted bool
@@ -82,6 +83,7 @@ func voteRoutes() {
 					"voted":     true,
 					"canVote":   numVotes < maxVotes,
 					"candidate": candidate_id,
+					"name":      candidate_name,
 					"position":  position,
 				})
 			} else {
@@ -89,6 +91,7 @@ func voteRoutes() {
 					"voted":     false,
 					"canVote":   numVotes < maxVotes,
 					"candidate": candidate_id,
+					"name":      candidate_name,
 					"position":  position,
 				})
 			}

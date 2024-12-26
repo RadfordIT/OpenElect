@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gin-contrib/sessions"
@@ -44,7 +45,7 @@ func candidateAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 		groups := session.Get("groups").([]string)
-		if !contains(groups, os.Getenv("CANDIDATE_GROUP_ID")) {
+		if !contains(groups, configEditor.GetString("candidategroup")) {
 			c.String(http.StatusUnauthorized, "Unauthorized")
 			c.Abort()
 			return
@@ -63,7 +64,7 @@ func adminAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 		groups := session.Get("groups").([]string)
-		if !contains(groups, os.Getenv("ADMIN_GROUP_ID")) {
+		if !contains(groups, configEditor.GetString("admingroup")) {
 			c.String(http.StatusUnauthorized, "Unauthorized")
 			c.Abort()
 			return
@@ -96,19 +97,39 @@ func authSetup() {
 	}
 }
 
-func extractGroupsFromToken(ctx context.Context, rawIDToken string) ([]string, error) {
-	verifier := provider.Verifier(&oidc.Config{ClientID: clientID})
-	idToken, err := verifier.Verify(ctx, rawIDToken)
+func fetchUserGroups(accessToken string) ([]string, error) {
+	url := "https://graph.microsoft.com/v1.0/me/memberOf"
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to verify ID token: %v", err)
+		return nil, err
 	}
-	var claims struct {
-		Groups []string `json:"groups"`
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
 	}
-	if err := idToken.Claims(&claims); err != nil {
-		return nil, fmt.Errorf("failed to extract claims: %v", err)
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch groups, status code: %d", resp.StatusCode)
 	}
-	return claims.Groups, nil
+
+	var result struct {
+		Value []struct {
+			DisplayName string `json:"displayName"`
+		} `json:"value"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+
+	var groups []string
+	for _, group := range result.Value {
+		groups = append(groups, group.DisplayName)
+	}
+	return groups, nil
 }
 
 func loginRoutes() {
@@ -179,13 +200,11 @@ func loginRoutes() {
 			session.Set("pfp", "./pfp/default_pfp.jpg")
 		}
 
-		groups, err := extractGroupsFromToken(context.Background(), rawIDToken)
+		groups, err := fetchUserGroups(token.AccessToken)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to extract groups: %v", err)
 			return
 		}
-		fmt.Println(claims["name"].(string))
-		fmt.Println(claims["sub"], groups)
 		session.Set("name", claims["name"])
 		session.Set("user_id", claims["sub"])
 		session.Set("groups", groups)
@@ -203,7 +222,6 @@ func loginRoutes() {
 		}
 		session := sessions.Default(c)
 		pfp := session.Get("pfp")
-		fmt.Println("pfp: ", pfp)
 		if pfp == nil {
 			pfp = "./pfp/default_pfp.jpg"
 		}
