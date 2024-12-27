@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 
 func adminRoutes() {
 	r.GET("/admin", adminAuthMiddleware(), func(c *gin.Context) {
+		fmt.Println(configEditor.GetInt("maxvotes"))
 		c.HTML(http.StatusOK, "admin.tmpl", gin.H{
 			"colors": colorsEditor.GetStringMapString("colors"),
 			"colorNames": [...]string{

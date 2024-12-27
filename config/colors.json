@@ -1,24 +1,24 @@
 {
   "colors": {
-    "accent": "#ff55c2",
+    "accent": "#962330",
     "accentContent": "#000000",
-    "base100": "#ebffe2",
-    "base200": "#f8ffb9",
-    "base300": "#faff9a",
+    "base100": "#fffffe",
+    "base200": "#f0efea",
+    "base300": "#d8d8d8",
     "baseContent": "#000000",
-    "error": "#ff0027",
+    "error": "#d55338",
     "errorContent": "#000000",
-    "info": "#cdfb00",
+    "info": "#d5fa4f",
     "infoContent": "#000000",
     "neutral": "#33dbff",
     "neutralContent": "#000000",
-    "primary": "#65dc84",
+    "primary": "#962330",
     "primaryContent": "#000000",
     "secondary": "#2333ee",
     "secondaryContent": "#000000",
-    "success": "#49ff00",
+    "success": "#d3cb6c",
     "successContent": "#000000",
-    "warning": "#f44b00",
+    "warning": "#d29c54",
     "warningContent": "#000000"
   }
 }
