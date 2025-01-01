@@ -1,6 +1,6 @@
 admingroup: OpenElect Admins
 candidategroup: OpenElect Candidates
-maxvotes: 4
+maxvotes: 3
 positions:
     - School Captain
     - Vice Captain
