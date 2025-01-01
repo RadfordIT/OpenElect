@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -74,7 +75,7 @@ func profileRoutes() {
 	r.POST("/preview", candidateAuthMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
 		name := session.Get("name").(string)
-		_, err = dbpool.Exec(context.Background(), "UPDATE candidates SET published = FALSE WHERE name = $1", name)
+		_, err := dbpool.Exec(context.Background(), "UPDATE candidates SET published = FALSE WHERE name = $1", name)
 		if err != nil {
 			fmt.Println(err)
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
@@ -82,7 +83,7 @@ func profileRoutes() {
 		}
 		deindex(session.Get("user_id").(string))
 		session.AddFlash("Your profile has been submitted for review.")
-		err := session.Save()
+		err = session.Save()
 		if err != nil {
 			fmt.Println(err)
 		}
