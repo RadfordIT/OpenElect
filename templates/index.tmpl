@@ -33,25 +33,28 @@
     </div>
 </div>
 <div class="md:container md:mx-auto">
-{{ range .text }}
-    <div class="card bg-base-100 w-96 shadow-xl">
-        <figure>
-            <img
-                    src="/pfp?user={{.ID}}"
-                    alt="{{ .Name }}"/>
-        </figure>
-        <div class="card-body">
-            <h2 class="card-title">{{ .Name }}</h2>
-            <p>{{ .HookStatement }}</p>
-            <div class="card-actions justify-end">
-                <a class="btn btn-primary" href="/{{ .Name }}">Learn More</a>
-            </div>
-            {{ range .Keywords }}
-                <div class="badge badge-primary">{{ . }}</div>
-            {{ end }}
-        </div>
+    <div class="w-full text-center">
+        <h1 class="text-4xl font-bold mb-5">{{ len .text }} Candidates Found</h1>
     </div>
-{{ end }}
+    {{ range .text }}
+        <div class="card bg-base-100 w-96 shadow-xl">
+            <figure>
+                <img
+                        src="/pfp?user={{.ID}}"
+                        alt="{{ .Name }}"/>
+            </figure>
+            <div class="card-body">
+                <h2 class="card-title">{{ .Name }}</h2>
+                <p>{{ .HookStatement }}</p>
+                <div class="card-actions justify-end">
+                    <a class="btn btn-primary" href="/{{ .Name }}">Learn More</a>
+                </div>
+                {{ range .Keywords }}
+                    <div class="badge badge-primary">{{ . }}</div>
+                {{ end }}
+            </div>
+        </div>
+    {{ end }}
 </div>
 <script type="text/javascript">
     document.getElementById('searchForm').addEventListener('submit', function(event) {
