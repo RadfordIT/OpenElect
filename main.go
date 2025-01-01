@@ -106,9 +106,9 @@ func main() {
 		positions := c.PostFormArray("position[]")
 		_, err := dbpool.Exec(context.Background(),
 			`INSERT INTO candidates 
-    			(id, name, description, hookstatement, keywords, positions, published) VALUES ($1, $2, $3, $4, $5, $6, NULL)
-				ON CONFLICT(id) DO UPDATE SET id = $1, name = $2, description = $3, hookstatement = $4, keywords = $5, positions = $6, published = NULL`,
-			userID, name, description, hookstatement, tags, positions,
+    			(id, name, description, hookstatement, video, keywords, positions, published) VALUES ($1, $2, $3, $4, $5, $6, $7, NULL)
+				ON CONFLICT(id) DO UPDATE SET id = $1, name = $2, description = $3, hookstatement = $4, video = $5, keywords = $6, positions = $7, published = NULL`,
+			userID, name, description, hookstatement, nil, tags, positions,
 		)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to upsert candidate: %v", err)
@@ -124,7 +124,8 @@ func main() {
 		var hookstatement string
 		var keywords []string
 		var positions []string
-		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS NULL", name).Scan(&userId, &name, &description, &hookstatement, &keywords, &positions, nil)
+		video := ""
+		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS NULL", name).Scan(&userId, &name, &description, &hookstatement, &video, &keywords, &positions, nil)
 		if err != nil {
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
 			return
@@ -134,6 +135,7 @@ func main() {
 			"name":          name,
 			"description":   description,
 			"hookstatement": hookstatement,
+			"video":         video,
 			"keywords":      keywords,
 			"published":     false,
 			"admin":         false,

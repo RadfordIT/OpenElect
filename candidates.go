@@ -15,8 +15,9 @@ func createTables() {
     	name TEXT NOT NULL, 
     	description TEXT NOT NULL CHECK (char_length(description) <= 5000), 
     	hookstatement TEXT NOT NULL CHECK (char_length(hookstatement) <= 150), 
+    	video TEXT DEFAULT NULL,
     	keywords TEXT[] CHECK (array_length(keywords, 1) <= 6), 
-    	positions TEXT[],
+    	positions TEXT[] CHECK (array_length(positions, 1) >= 1),
     	published BOOLEAN DEFAULT NULL
     )`)
 	dbpool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS votes (
@@ -37,7 +38,8 @@ func voteRoutes() {
 		var hookstatement string
 		var keywords []string
 		var positions []string
-		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS TRUE", name).Scan(&userId, &name, &description, &hookstatement, &keywords, &positions, nil)
+		video := ""
+		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS TRUE", name).Scan(&userId, &name, &description, &hookstatement, &video, &keywords, &positions, nil)
 		if err != nil {
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
 			return
@@ -71,6 +73,7 @@ func voteRoutes() {
 			"name":           name,
 			"description":    description,
 			"hookstatement":  hookstatement,
+			"video":          video,
 			"keywords":       keywords,
 			"published":      true,
 			"admin":          false,

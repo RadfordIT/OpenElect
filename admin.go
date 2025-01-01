@@ -87,7 +87,8 @@ func adminRoutes() {
 		var hookstatement string
 		var keywords []string
 		var positions []string
-		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS FALSE", name).Scan(&userId, &name, &description, &hookstatement, &keywords, &positions, nil)
+		video := ""
+		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS FALSE", name).Scan(&userId, &name, &description, &hookstatement, &video, &keywords, &positions, nil)
 		if err != nil {
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
 			return
@@ -97,6 +98,7 @@ func adminRoutes() {
 			"name":          name,
 			"description":   description,
 			"hookstatement": hookstatement,
+			"video":         video,
 			"keywords":      keywords,
 			"published":     false,
 			"admin":         true,
