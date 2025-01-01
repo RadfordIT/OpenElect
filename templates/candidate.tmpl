@@ -15,15 +15,11 @@
 <div class="md:container md:mx-auto">
     <h1 class="text-5xl font-bold text-center mt-3">{{.name}}</h1>
     <h2 class="text-3xl font-light text-center">{{.hookstatement}}</h2>
-    {{ if not eq .video "" }}
-        <div class="aspect-w-16 aspect-h-9">
-            <iframe
-                    src="{{.video}}"
-                    class="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen
-            ></iframe>
-        </div>
+    {{ if not (eq .video "") }}
+        <video controls class="mt-2" width="100%">
+            <source src="{{ .video }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
     {{ end }}
     <article class="prose">
         <md-block untrusted>{{.description}}</md-block>

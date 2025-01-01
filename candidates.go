@@ -93,7 +93,6 @@ func voteRoutes() {
 			"SELECT EXISTS(SELECT 1 FROM votes WHERE candidate_id = $1 AND voter_id = $2 AND position = $3)", candidate, user, position,
 		).Scan(&voted)
 		if err != nil {
-			fmt.Println(err)
 			c.String(http.StatusInternalServerError, "Failed to check vote: %v", err)
 			return
 		}

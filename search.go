@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/typesense/typesense-go/v2/typesense"
 	"github.com/typesense/typesense-go/v2/typesense/api"
 	"github.com/typesense/typesense-go/v2/typesense/api/pointer"
@@ -76,7 +75,6 @@ func search(query string) []Candidate {
 		log.Fatal(err)
 	}
 	if results.Hits == nil {
-		fmt.Println("No results found")
 		return nil
 	}
 	var candidates []Candidate

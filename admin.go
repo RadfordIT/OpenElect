@@ -67,7 +67,7 @@ func adminRoutes() {
 		var candidates []Candidate
 		for rows.Next() {
 			var candidate Candidate
-			err = rows.Scan(&candidate.ID, &candidate.Name, &candidate.Description, &candidate.HookStatement, &candidate.Keywords, &candidate.Positions, nil)
+			err = rows.Scan(&candidate.ID, &candidate.Name, &candidate.Description, &candidate.HookStatement, nil, &candidate.Keywords, &candidate.Positions, nil)
 			if err != nil {
 				c.String(http.StatusInternalServerError, "Failed to scan candidate: %v", err)
 				return
@@ -85,9 +85,9 @@ func adminRoutes() {
 		var userId string
 		var description string
 		var hookstatement string
+		var video string
 		var keywords []string
 		var positions []string
-		video := ""
 		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS FALSE", name).Scan(&userId, &name, &description, &hookstatement, &video, &keywords, &positions, nil)
 		if err != nil {
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
@@ -130,7 +130,7 @@ func adminRoutes() {
 		var hookstatement string
 		var keywords []string
 		var positions []string
-		err = dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS TRUE", name).Scan(&userId, &name, &description, &hookstatement, &keywords, &positions, nil)
+		err = dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS TRUE", name).Scan(&userId, &name, &description, &hookstatement, nil, &keywords, &positions, nil)
 		if err != nil {
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
 			return

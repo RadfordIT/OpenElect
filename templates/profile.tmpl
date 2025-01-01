@@ -3,7 +3,7 @@
     <form id="main-form" class="mt-4" action="/profile" method="post" enctype="multipart/form-data">
         <label class="form-control">
             <div class="label">
-                <h1 class="text-2xl font-bold mt-4">Description (markdown supported)</h1>
+                <h1 class="text-2xl font-bold mt-4">Bio (markdown supported)</h1>
             </div>
             <div class="editorcontainer">
                 <div id="toolbar"></div>
@@ -18,15 +18,26 @@
             <input required type="text" placeholder="Hook Statement" class="input input-bordered w-full max-w-xs"
                    name="hookstatement" value="{{ .hookstatement }}">
         </label>
-
         <label class="form-control">
             <h1 class="text-2xl font-bold mt-4">Video (optional)</h1>
             <input
                     type="file"
                     class="file-input file-input-bordered file-input-primary w-full max-w-xs"
-                    accept="video/*"
+                    accept="video/mp4"
+                    name="video"
             />
         </label>
+        {{ if not (eq .video "") }}
+            <div class="form-control flex flex-row items-center mt-2">
+                <input type="checkbox" class="checkbox checkbox-warning" name="deletevideo" id="deletevideo" value="true" />
+                <label class="ml-2 cursor-pointer">Delete Video</label>
+            </div>
+            <input type="hidden" name="oldvideo" value="{{ .video }}">
+            <video controls class="mt-2" width="100%">
+                <source src="{{ .video }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        {{ end }}
 
         <h1 class="text-2xl font-bold mt-4">Tags</h1>
         <div id="tag-container" class="flex flex-wrap gap-2">
