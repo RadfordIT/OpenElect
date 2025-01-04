@@ -1,44 +1,48 @@
 name: "OpenElect"
 services:
-  web:
-    build: .
-    volumes:
-      - .:/OpenElect
-    ports:
-      - "8080:8080"
-    env_file: .env
-    depends_on:
-      - postgres
-      - typesense
-      - tailwind
+    web:
+        build: .
+        volumes:
+            - .:/OpenElect
+        ports:
+            - "8080:8080"
+        env_file: .env
+        depends_on:
+            - postgres
+            - typesense
+            - tailwind
 
-  postgres:
-    image: "postgres:17"
-    env_file: .env
-    volumes:
-      - /opt/homebrew/var/postgresql@17:/var/lib/postgresql
-    ports:
-      - "5432:5432"
+    postgres:
+        image: "postgres:17"
+        env_file: .env
+        volumes:
+            - postgres:/var/lib/postgresql/data
+        ports:
+            - "5432:5432"
 
-  typesense:
-    image: "typesense/typesense:27.1"
-    ports:
-      - "8108:8108"
-    volumes:
-      - /opt/homebrew/var/lib/typesense:/data
-    env_file: .env
+    typesense:
+        image: "typesense/typesense:27.1"
+        ports:
+            - "8108:8108"
+        volumes:
+            - typesense:/data
+        env_file: .env
 
-  tailwind:
-    image: "node:slim"
-    working_dir: /OpenElect
-    volumes:
-      - .:/OpenElect
-    tty: true
-    command: ["npx", "tailwindcss", "-i", "./css/styles.css", "-o", "./css/output.css", "--watch"]
+    tailwind:
+        image: "node:slim"
+        working_dir: /OpenElect
+        volumes:
+            - .:/OpenElect
+        tty: true
+        command: [ "npx", "tailwindcss", "-i", "./css/styles.css", "-o", "./css/output.css", "--watch" ]
 
-  admin:
-    image: "adminer"
-    ports:
-      - "8081:8080"
-    depends_on:
-        - postgres
+    admin:
+        image: "adminer"
+        ports:
+            - "8081:8080"
+        depends_on:
+            - postgres
+
+volumes:
+    postgres:
+    typesense:
