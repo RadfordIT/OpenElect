@@ -7,3 +7,7 @@ positions:
     - House Captain
     - Prefect
     - Dirrum Dirrum Captain
+    - Acacia House Captain:
+          - required_group: Acacia
+    - Banksia House Captain:
+          - required_group: Banksia
