@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 
 func adminRoutes() {
 	r.GET("/admin", adminAuthMiddleware(), func(c *gin.Context) {
+		fmt.Println(configEditor.GetStringMapString("positions"))
 		c.HTML(http.StatusOK, "admin.tmpl", gin.H{
 			"colors": colorsEditor.GetStringMapString("colors"),
 			"colorNames": [...]string{
@@ -34,7 +36,7 @@ func adminRoutes() {
 				"warning",
 				"warningContent",
 			},
-			"positions":      configEditor.GetStringSlice("positions"),
+			"positions":      configEditor.GetStringMapString("positions"),
 			"maxvotes":       configEditor.GetInt("maxvotes"),
 			"candidategroup": configEditor.GetString("candidategroup"),
 		})
@@ -44,7 +46,13 @@ func adminRoutes() {
 		colorsEditor.Set("colors", colors)
 		colorsEditor.WriteConfig()
 
-		positions := c.PostFormArray("position[]")
+		positionNames := c.PostFormArray("position[]")
+		requiredGroups := c.PostFormArray("requiredgroup[]")
+		positions := make(map[string]string)
+		for i, position := range positionNames {
+			positions[position] = requiredGroups[i]
+		}
+		fmt.Println(positions)
 		configEditor.Set("positions", positions)
 		maxVotes, err := strconv.Atoi(c.PostForm("maxvotes"))
 		if err != nil {

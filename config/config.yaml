@@ -2,12 +2,15 @@ admingroup: OpenElect Admins
 candidategroup: OpenElect Candidates
 maxvotes: 3
 positions:
-    - School Captain
-    - Vice Captain
-    - House Captain
-    - Prefect
-    - Dirrum Dirrum Captain
-    - Acacia House Captain:
-          - required_group: Acacia
-    - Banksia House Captain:
-          - required_group: Banksia
+    acacia house captain: Acacia
+    banksia house captain: Banksia
+    boronia house capatin: Boronia
+    dirrum dirrum captain: ""
+    house captain: ""
+    huon house captain: Huon
+    jarrah house captain: Jarrah
+    karri house captain: Karri
+    kurrajong house captain: Kurrajong
+    school captain: ""
+    vice captain: ""
+    wandoo house captain: Wandoo

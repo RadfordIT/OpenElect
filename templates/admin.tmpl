@@ -8,14 +8,31 @@
             <br>
         {{ end }}
         <h1 class="text-3xl font-bold mb-2 mt-3">Positions</h1>
-        <div id="position-container" class="flex flex-wrap gap-2">
-            {{ range .positions }}
-                <div class="badge badge-primary flex items-center gap-2">
-                    <span class="position-label">{{.}}</span>
-                    <input type="hidden" name="position[]" value="{{.}}">
-                    <button type="button" class="remove-position-button">&times;</button>
-                </div>
-            {{ end }}
+        <div class="flex flex-wrap gap-2">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Required Group Name</th>
+                    </tr>
+                </thead>
+                <tbody id="position-container">
+                    {{ range $key, $value := .positions }}
+                        <tr>
+                            <td>
+                                {{ $key }}
+                                <input type="hidden" name="position[]" value="{{$key}}">
+                            </td>
+                            <td>
+                                <input type="text" name="requiredgroup[]" value="{{ $value }}" class="input input-bordered w-full" placeholder="Required Group">
+                            </td>
+                            <td>
+                                <button type="button" class="remove-position-button">&times;</button>
+                            </td>
+                        </tr>
+                    {{ end }}
+                </tbody>
+            </table>
         </div>
         <div class="flex items-center gap-2 mt-2 mb-4">
             <input
@@ -35,11 +52,18 @@
     </form>
 </div>
 <template id="position-template">
-    <div class="badge badge-primary flex items-center gap-2">
-        <span class="position-label">{{"{{"}}position{{"}}"}}</span>
-        <input type="hidden" name="position[]" value="{{"{{"}}position{{"}}"}}">
-        <button type="button" class="remove-position-button">&times;</button>
-    </div>
+    <tr>
+        <td>
+            {{"{{"}}position{{"}}"}}
+            <input type="hidden" name="position[]" value="{{"{{"}}position{{"}}"}}">
+        </td>
+        <td>
+            <input type="text" name="requiredgroup[]" class="input input-bordered w-full" placeholder="Required Group">
+        </td>
+        <td>
+            <button type="button" class="remove-position-button">&times;</button>
+        </td>
+    </tr>
 </template>
 <script>
     document.getElementById("add-position-button").addEventListener("click", () => {
@@ -57,7 +81,7 @@
 
     document.getElementById("position-container").addEventListener("click", (e) => {
         if (e.target.classList.contains("remove-position-button")) {
-            e.target.closest(".badge").remove();
+            e.target.closest("tr").remove();
         }
     });
 
