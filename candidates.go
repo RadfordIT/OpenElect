@@ -9,7 +9,7 @@ import (
 )
 
 func createTables() {
-	dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS candidates,votes")
+	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS candidates,votes")
 	dbpool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS candidates (
     	id TEXT NOT NULL PRIMARY KEY, 
     	name TEXT NOT NULL, 
