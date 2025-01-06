@@ -207,7 +207,7 @@ func loginRoutes() {
 		fmt.Println(session.Get("user_id"), session.Get("groups"), session.Get("pfp"))
 		c.Redirect(http.StatusFound, "/")
 	})
-	r.GET("/pfp", func(c *gin.Context) {
+	r.GET("/pfp", authMiddleware(), func(c *gin.Context) {
 		userId := c.DefaultQuery("user", "")
 		if userId != "" {
 			http.ServeFile(c.Writer, c.Request, "./pfp/"+userId+".jpg")
@@ -219,7 +219,7 @@ func loginRoutes() {
 		}
 		http.ServeFile(c.Writer, c.Request, pfp.(string))
 	})
-	r.GET("/logout", func(c *gin.Context) {
+	r.GET("/logout", authMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
 		session.Clear()
 		session.Save()
