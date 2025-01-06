@@ -6,6 +6,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"slices"
 )
 
 func createTables() {
@@ -68,6 +69,15 @@ func voteRoutes() {
 		}
 		fmt.Println(votedFor)
 		votesRemaining := configEditor.GetInt("maxvotes") - numVotes
+		allPositions := configEditor.GetStringMapString("positions")
+		groups := session.Get("groups").([]string)
+		var eligiblePositions []string
+		for position, group := range allPositions {
+			if group == " " || slices.Contains(groups, group) {
+				eligiblePositions = append(eligiblePositions, position)
+			}
+		}
+		fmt.Println(eligiblePositions)
 		c.HTML(http.StatusOK, "candidate.tmpl", gin.H{
 			"userId":         userId,
 			"name":           name,
@@ -77,7 +87,7 @@ func voteRoutes() {
 			"keywords":       keywords,
 			"published":      true,
 			"admin":          false,
-			"positions":      positions,
+			"positions":      eligiblePositions,
 			"votedFor":       votedFor,
 			"votesRemaining": votesRemaining,
 		})

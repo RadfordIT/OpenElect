@@ -7,6 +7,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"slices"
 )
 
 func profileRoutes() {
@@ -20,6 +21,15 @@ func profileRoutes() {
 		var positions []string
 		dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE id = $1", session.Get("user_id")).Scan(&userId, nil, &description, &hookstatement, &video, &keywords, &positions, nil)
 		fmt.Println(video)
+		allPositions := configEditor.GetStringMapString("positions")
+		groups := session.Get("groups").([]string)
+		var eligiblePositions []string
+		for position, group := range allPositions {
+			if group == " " || slices.Contains(groups, group) {
+				eligiblePositions = append(eligiblePositions, position)
+			}
+		}
+		fmt.Println(eligiblePositions)
 		c.HTML(http.StatusOK, "profile.tmpl", gin.H{
 			"userId":        userId,
 			"description":   description,
@@ -27,7 +37,7 @@ func profileRoutes() {
 			"video":         video,
 			"keywords":      keywords,
 			"positions":     positions,
-			"allpositions":  configEditor.GetStringSlice("positions"),
+			"allpositions":  eligiblePositions,
 		})
 	})
 	r.POST("/profile", candidateAuthMiddleware(), func(c *gin.Context) {

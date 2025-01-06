@@ -12,6 +12,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"slices"
 )
 
 var (
@@ -45,7 +46,7 @@ func candidateAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 		groups := session.Get("groups").([]string)
-		if !contains(groups, configEditor.GetString("candidategroup")) {
+		if !slices.Contains(groups, configEditor.GetString("candidategroup")) {
 			c.String(http.StatusUnauthorized, "Unauthorized: you are not a candidate")
 			c.Abort()
 			return
@@ -64,22 +65,13 @@ func adminAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 		groups := session.Get("groups").([]string)
-		if !contains(groups, configEditor.GetString("admingroup")) {
+		if !slices.Contains(groups, configEditor.GetString("admingroup")) {
 			c.String(http.StatusUnauthorized, "Unauthorized: you are not an admin")
 			c.Abort()
 			return
 		}
 		c.Next()
 	}
-}
-
-func contains(groups []string, s string) bool {
-	for _, group := range groups {
-		if group == s {
-			return true
-		}
-	}
-	return false
 }
 
 func authSetup() {
