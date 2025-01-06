@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/gob"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -35,7 +34,6 @@ func main() {
 	searchSetup()
 	dbSetup()
 	defer dbpool.Close()
-	gob.Register(map[string]interface{}{})
 
 	r = gin.Default()
 	r.SetFuncMap(template.FuncMap{
