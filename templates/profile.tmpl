@@ -3,7 +3,8 @@
     <form id="main-form" class="mt-4" action="/profile" method="post" enctype="multipart/form-data">
         <label class="form-control">
             <div class="label">
-                <h1 class="text-2xl font-bold mt-4">Bio (markdown supported)</h1>
+                <h1 class="text-2xl font-bold mt-4">About Me</h1>
+                <p>A short description of yourself and what you stand for</p>
             </div>
             <div class="editorcontainer">
                 <div id="toolbar"></div>
@@ -58,7 +59,7 @@
                     class="input input-bordered w-full">
             <button type="button" id="add-tag-button" class="btn btn-primary">Add</button>
         </div>
-        <h1 class="text-2xl font-bold mt-4">Positions</h1>
+        <h1 class="text-2xl font-bold mt-4">Positions to run for:</h1>
         {{ range .allpositions }}
             <div class="form-control flex flex-row items-center mt-2">
                 <input type="checkbox" name="position[]" class="checkbox checkbox-primary" {{ if contains $.positions . }}checked{{ end }} value="{{ . }}" />

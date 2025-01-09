@@ -12,7 +12,7 @@
             class="object-cover z-10 h-[75vh] m-auto"
     >
 </div>
-<div class="md:container md:mx-auto">
+<div class="md:container md:mx-auto px-4">
     <h1 class="text-5xl font-bold text-center mt-3">{{.name}}</h1>
     <h2 class="text-3xl font-light text-center">{{.hookstatement}}</h2>
     {{ if not (eq .video "") }}
@@ -21,15 +21,14 @@
             Your browser does not support the video tag.
         </video>
     {{ end }}
-    <article class="prose">
+    <article class="prose md:prose-lg leading-snug mx-auto mt-6 max-w-none">
         <md-block untrusted>{{.description}}</md-block>
     </article>
-    <h3 class="text-2xl font-bold">Tags:</h3>
     {{ range .keywords }}
         <div class="badge badge-primary">{{.}}</div>
     {{ end }}
     <br>
-    <h3 class="text-2xl font-bold">Positions:</h3>
+    <h3 class="text-2xl font-bold mt-4">Positions running for:</h3>
     {{ if .published }}
         <div class="md:flex">
             {{ range .positions }}
