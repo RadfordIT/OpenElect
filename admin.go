@@ -164,7 +164,6 @@ func adminRoutes() {
 					WHERE position = $1
 					GROUP BY candidate_id, candidate
 					ORDER BY COUNT(*) DESC
-					LIMIT 10;
 				`, position)
 				if err != nil {
 					c.String(http.StatusInternalServerError, "Failed to get winners: %v", err)
