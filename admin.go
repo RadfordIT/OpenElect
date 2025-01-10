@@ -52,8 +52,8 @@ func adminRoutes() {
 		positions := make(map[string]string)
 		for i, position := range positionNames {
 			positions[position] = requiredGroups[i]
+			dbpool.Exec(context.Background(), "INSERT INTO positions (name) VALUES ($1) ON CONFLICT DO NOTHING", position)
 		}
-		fmt.Println(positions)
 		configEditor.Set("positions", positions)
 		maxVotes, err := strconv.Atoi(c.PostForm("maxvotes"))
 		if err != nil {
