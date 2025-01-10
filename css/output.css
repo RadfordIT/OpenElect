@@ -3427,6 +3427,10 @@ html {
   margin-top: 1.5rem;
 }
 
+.ml-4 {
+  margin-left: 1rem;
+}
+
 .flex {
   display: flex;
 }
@@ -3543,6 +3547,10 @@ html {
   justify-content: center;
 }
 
+.justify-between {
+  justify-content: space-between;
+}
+
 .gap-2 {
   gap: 0.5rem;
 }
@@ -3605,6 +3613,10 @@ html {
 
 .px-4 {
   padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.pr-4 {
   padding-right: 1rem;
 }
 

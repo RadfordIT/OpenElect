@@ -36,9 +36,10 @@ func adminRoutes() {
 				"warning",
 				"warningContent",
 			},
-			"positions":      configEditor.GetStringMapString("positions"),
-			"maxvotes":       configEditor.GetInt("maxvotes"),
-			"candidategroup": configEditor.GetString("candidategroup"),
+			"positions":       configEditor.GetStringMapString("positions"),
+			"maxvotes":        configEditor.GetInt("maxvotes"),
+			"candidategroup":  configEditor.GetString("candidategroup"),
+			"endelectiontime": configEditor.GetTime("endelectiontime"),
 		})
 	})
 	r.POST("/admin", adminAuthMiddleware(), func(c *gin.Context) {
@@ -62,6 +63,8 @@ func adminRoutes() {
 		configEditor.Set("maxvotes", maxVotes)
 		candidateGroup := c.PostForm("candidategroup")
 		configEditor.Set("candidategroup", candidateGroup)
+		endElectionTime := c.PostForm("endelectiontime")
+		configEditor.Set("endelectiontime", endElectionTime)
 		configEditor.WriteConfig()
 		c.Redirect(http.StatusSeeOther, "/admin")
 	})
