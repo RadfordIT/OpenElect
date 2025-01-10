@@ -47,25 +47,29 @@ func resultsRoutes() {
 		for k := range positionsMap {
 			positions = append(positions, k)
 		}
-		var winners map[string]string
+		winners := make(map[string]string)
 		for _, position := range positions {
 			var candidate string
 			err := dbpool.QueryRow(context.Background(), `
-				SELECT candidate_id, COUNT(*) AS vote_count
+				SELECT candidate_id
 				FROM votes
 				WHERE position = $1
 				GROUP BY candidate_id
-				ORDER BY vote_count DESC
+				ORDER BY COUNT(*) DESC
 				LIMIT 1;
 			`, position).Scan(&candidate)
 			if err != nil {
-				c.String(http.StatusInternalServerError, "Failed to get winner: %v", err)
-				return
+				if err.Error() == "no rows in result set" {
+					candidate = "No winner"
+				} else {
+					c.String(http.StatusInternalServerError, "Failed to get winners: %v", err)
+					return
+				}
 			}
 			winners[position] = candidate
 		}
 		c.HTML(http.StatusOK, "results.tmpl", gin.H{
-			"candidates": "",
+			"candidates": winners,
 		})
 	})
 }

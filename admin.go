@@ -148,4 +148,32 @@ func adminRoutes() {
 		session.Save()
 		c.Redirect(http.StatusSeeOther, "/admin/candidates")
 	})
+	r.GET("/admin/results", adminAuthMiddleware(), func(c *gin.Context) {
+		positionsMap := configEditor.GetStringMapString("positions")
+		var positions []string
+		for k := range positionsMap {
+			positions = append(positions, k)
+		}
+		winners := make(map[string]string)
+		for _, position := range positions {
+			var candidate string
+			err := dbpool.QueryRow(context.Background(), `
+				SELECT candidate_id
+				FROM votes
+				WHERE position = $1
+				GROUP BY candidate_id
+				ORDER BY COUNT(*) DESC
+				LIMIT 1;
+			`, position).Scan(&candidate)
+			if err != nil {
+				if err.Error() == "no rows in result set" {
+					candidate = "No winner"
+				} else {
+					c.String(http.StatusInternalServerError, "Failed to get winners: %v", err)
+					return
+				}
+			}
+			winners[position] = candidate
+		}
+	})
 }
