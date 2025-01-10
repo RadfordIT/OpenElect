@@ -1,5 +1,6 @@
 admingroup: OpenElect Admins
 candidategroup: OpenElect Candidates
+endelectiontime: "2025-01-09"
 maxvotes: 3
 positions:
     acacia house captain: Acacia
@@ -14,4 +15,3 @@ positions:
     school captain: ""
     vice captain: ""
     wandoo house captain: Wandoo
-endelectiontime: 2024-12-31

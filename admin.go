@@ -39,7 +39,7 @@ func adminRoutes() {
 			"positions":       configEditor.GetStringMapString("positions"),
 			"maxvotes":        configEditor.GetInt("maxvotes"),
 			"candidategroup":  configEditor.GetString("candidategroup"),
-			"endelectiontime": configEditor.GetTime("endelectiontime"),
+			"endelectiontime": configEditor.GetString("endelectiontime"),
 		})
 	})
 	r.POST("/admin", adminAuthMiddleware(), func(c *gin.Context) {
