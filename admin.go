@@ -9,6 +9,11 @@ import (
 	"strconv"
 )
 
+type Result struct {
+	Candidate string
+	Votes     int
+}
+
 func adminRoutes() {
 	r.GET("/admin", adminAuthMiddleware(), func(c *gin.Context) {
 		fmt.Println(configEditor.GetStringMapString("positions"))
@@ -150,30 +155,43 @@ func adminRoutes() {
 	})
 	r.GET("/admin/results", adminAuthMiddleware(), func(c *gin.Context) {
 		positionsMap := configEditor.GetStringMapString("positions")
-		var positions []string
-		for k := range positionsMap {
-			positions = append(positions, k)
-		}
-		winners := make(map[string]string)
-		for _, position := range positions {
-			var candidate string
-			err := dbpool.QueryRow(context.Background(), `
-				SELECT candidate_id
-				FROM votes
-				WHERE position = $1
-				GROUP BY candidate_id
-				ORDER BY COUNT(*) DESC
-				LIMIT 1;
-			`, position).Scan(&candidate)
-			if err != nil {
-				if err.Error() == "no rows in result set" {
-					candidate = "No winner"
-				} else {
+		winners := make(map[string]Result)
+		for position, _ := range positionsMap {
+			func() {
+				rows, err := dbpool.Query(context.Background(), `
+					WITH ranked_candidates AS (
+						SELECT 
+							candidate_id,
+							COUNT(*) AS vote_count,
+							RANK() OVER (ORDER BY COUNT(*) DESC) AS rank
+						FROM votes
+						WHERE position = $1
+						GROUP BY candidate_id
+					)
+					SELECT candidate_id, vote_count
+					FROM ranked_candidates
+					WHERE rank <= 10;
+				`, position)
+				if err != nil {
 					c.String(http.StatusInternalServerError, "Failed to get winners: %v", err)
 					return
 				}
-			}
-			winners[position] = candidate
+				defer rows.Close()
+				for rows.Next() {
+					var candidate string
+					var votes int
+					err = rows.Scan(&candidate, &votes)
+					if err != nil {
+						c.String(http.StatusInternalServerError, "Failed to scan winner: %v", err)
+						return
+					}
+					winners[position] = Result{Candidate: candidate, Votes: votes}
+				}
+			}()
 		}
+
+		c.HTML(http.StatusOK, "adminresults.tmpl", gin.H{
+			"candidates": winners,
+		})
 	})
 }
