@@ -53,6 +53,7 @@ func main() {
 	adminRoutes()
 	voteRoutes()
 	profileRoutes()
+	resultsRoutes()
 
 	r.GET("/", authMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)

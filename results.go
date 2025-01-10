@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -41,7 +42,29 @@ func checkElectionEndedMiddleware() gin.HandlerFunc {
 
 func resultsRoutes() {
 	r.GET("/results", authMiddleware(), checkElectionEndedMiddleware(), func(c *gin.Context) {
-		c.HTML(http.StatusOK, "results.html", gin.H{
+		positionsMap := configEditor.GetStringMapString("positions")
+		var positions []string
+		for k := range positionsMap {
+			positions = append(positions, k)
+		}
+		var winners map[string]string
+		for _, position := range positions {
+			var candidate string
+			err := dbpool.QueryRow(context.Background(), `
+				SELECT candidate_id, COUNT(*) AS vote_count
+				FROM votes
+				WHERE position = $1
+				GROUP BY candidate_id
+				ORDER BY vote_count DESC
+				LIMIT 1;
+			`, position).Scan(&candidate)
+			if err != nil {
+				c.String(http.StatusInternalServerError, "Failed to get winner: %v", err)
+				return
+			}
+			winners[position] = candidate
+		}
+		c.HTML(http.StatusOK, "results.tmpl", gin.H{
 			"candidates": "",
 		})
 	})

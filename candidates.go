@@ -75,7 +75,6 @@ func voteRoutes() {
 			}
 			votedFor = append(votedFor, position)
 		}
-		fmt.Println(votedFor)
 		votesRemaining := configEditor.GetInt("maxvotes") - numVotes
 		allPositions := configEditor.GetStringMapString("positions")
 		groups := session.Get("groups").([]string)
@@ -85,7 +84,6 @@ func voteRoutes() {
 				eligiblePositions = append(eligiblePositions, position)
 			}
 		}
-		fmt.Println(eligiblePositions)
 		c.HTML(http.StatusOK, "candidate.tmpl", gin.H{
 			"userId":         userId,
 			"name":           name,
