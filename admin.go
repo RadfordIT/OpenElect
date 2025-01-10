@@ -151,25 +151,20 @@ func adminRoutes() {
 	r.GET("/admin/results", adminAuthMiddleware(), func(c *gin.Context) {
 		positionsMap := configEditor.GetStringMapString("positions")
 		type Result struct {
-			Candidate string
-			Votes     int
+			Candidate   string
+			CandidateID string
+			Votes       int
 		}
 		winners := make(map[string][]Result)
 		for position, _ := range positionsMap {
 			func() {
 				rows, err := dbpool.Query(context.Background(), `
-					WITH ranked_candidates AS (
-						SELECT 
-							candidate_id,
-							COUNT(*) AS vote_count,
-							RANK() OVER (ORDER BY COUNT(*) DESC) AS rank
-						FROM votes
-						WHERE position = $1
-						GROUP BY candidate_id
-					)
-					SELECT candidate_id, vote_count
-					FROM ranked_candidates
-					WHERE rank <= 10;
+					SELECT candidate_id, candidate, COUNT(*) AS vote_count
+					FROM votes
+					WHERE position = $1
+					GROUP BY candidate_id, candidate
+					ORDER BY COUNT(*) DESC
+					LIMIT 10;
 				`, position)
 				if err != nil {
 					c.String(http.StatusInternalServerError, "Failed to get winners: %v", err)
@@ -178,13 +173,14 @@ func adminRoutes() {
 				defer rows.Close()
 				for rows.Next() {
 					var candidate string
+					var candidateID string
 					var votes int
-					err = rows.Scan(&candidate, &votes)
+					err = rows.Scan(&candidateID, &candidate, &votes)
 					if err != nil {
 						c.String(http.StatusInternalServerError, "Failed to scan winner: %v", err)
 						return
 					}
-					winners[position] = append(winners[position], Result{Candidate: candidate, Votes: votes})
+					winners[position] = append(winners[position], Result{Candidate: candidate, CandidateID: candidateID, Votes: votes})
 				}
 			}()
 		}

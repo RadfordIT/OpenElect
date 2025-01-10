@@ -6,8 +6,8 @@
             {{ range $candidate }}
                 <div class="bg-base-200 rounded-lg mt-2 flex items-center">
                     <img
-                            src="/pfp"
-                            alt="{{.Candidate}}"
+                            src="/pfp?user={{ .CandidateID }}"
+                            alt="{{ .Candidate }}"
                             class="w-16 h-16 rounded-full ml-5 my-5"
                     >
                     <div class="ml-5 my-5">
