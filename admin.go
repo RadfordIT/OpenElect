@@ -154,7 +154,7 @@ func adminRoutes() {
 			Candidate string
 			Votes     int
 		}
-		winners := make(map[string]Result)
+		winners := make(map[string][]Result)
 		for position, _ := range positionsMap {
 			func() {
 				rows, err := dbpool.Query(context.Background(), `
@@ -184,7 +184,7 @@ func adminRoutes() {
 						c.String(http.StatusInternalServerError, "Failed to scan winner: %v", err)
 						return
 					}
-					winners[position] = Result{Candidate: candidate, Votes: votes}
+					winners[position] = append(winners[position], Result{Candidate: candidate, Votes: votes})
 				}
 			}()
 		}

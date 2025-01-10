@@ -1,11 +1,21 @@
 {{ template "header.tmpl" }}
-{{ range $position, $candidate := .candidates }}
-    <div class="bg-base-200 rounded-lg">
-        <div class="p-4">
-            <h2 class="text-2xl font-bold">{{ $candidate.Candidate }}</h2>
-            <p class="text-lg">{{ $position }}</p>
-            <p class="text-lg">{{ $candidate.Votes }} votes</p>
-        </div>
+    <div class="md:container mx-auto">
+        <h1 class="text-4xl font-bold">Results</h1>
+        {{ range $position, $candidate := .candidates }}
+            <h1 class="text-2xl font-bold mt-3">{{ $position }}</h1>
+            {{ range $candidate }}
+                <div class="bg-base-200 rounded-lg mt-2 flex items-center">
+                    <img
+                            src="/pfp"
+                            alt="{{.Candidate}}"
+                            class="w-16 h-16 rounded-full ml-5 my-5"
+                    >
+                    <div class="ml-5 my-5">
+                        <h2 class="text-2xl font-bold">{{ .Candidate }}</h2>
+                        <p class="text-lg">{{ .Votes }} Votes</p>
+                    </div>
+                </div>
+            {{ end }}
+        {{ end }}
     </div>
-{{ end }}
 {{ template "footer.tmpl" . }}
