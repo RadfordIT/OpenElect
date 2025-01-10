@@ -9,11 +9,6 @@ import (
 	"strconv"
 )
 
-type Result struct {
-	Candidate string
-	Votes     int
-}
-
 func adminRoutes() {
 	r.GET("/admin", adminAuthMiddleware(), func(c *gin.Context) {
 		fmt.Println(configEditor.GetStringMapString("positions"))
@@ -155,6 +150,10 @@ func adminRoutes() {
 	})
 	r.GET("/admin/results", adminAuthMiddleware(), func(c *gin.Context) {
 		positionsMap := configEditor.GetStringMapString("positions")
+		type Result struct {
+			Candidate string
+			Votes     int
+		}
 		winners := make(map[string]Result)
 		for position, _ := range positionsMap {
 			func() {
