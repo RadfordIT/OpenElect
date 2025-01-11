@@ -48,17 +48,21 @@ func profileRoutes() {
 		hookstatement := c.PostForm("hookstatement")
 		tags := c.PostFormArray("tag[]")
 		positions := c.PostFormArray("position[]")
-		deleteVideo := c.PostForm("deletevideo")
+		deleteVideoFlag := c.PostForm("deletevideo")
 		videoFilename := c.PostForm("oldvideo")
-		if deleteVideo == "true" || videoFilename == "" {
+		if deleteVideoFlag == "true" || videoFilename == "" {
 			video, header, err := c.Request.FormFile("video")
 			if err != nil && !errors.Is(err, http.ErrMissingFile) {
 				c.String(http.StatusInternalServerError, "Failed to upload video: %v", err)
 				return
 			}
 			if errors.Is(err, http.ErrMissingFile) {
+				err = deleteVideo(videoFilename)
+				if err != nil {
+					c.String(http.StatusInternalServerError, "Failed to delete video: %v", err)
+					return
+				}
 				videoFilename = ""
-				// TODO: delete from azure blob storage
 			} else {
 				if header.Header.Get("Content-Type") != "video/mp4" {
 					c.String(http.StatusBadRequest, "Invalid video format: only mp4 is supported")
@@ -66,7 +70,11 @@ func profileRoutes() {
 				}
 				defer video.Close()
 				videoFilename = fmt.Sprintf("%s.mp4", userID)
-				// TODO: upload to azure blob storage
+				err = uploadVideo(videoFilename, video)
+				if err != nil {
+					c.String(http.StatusInternalServerError, "Failed to upload video: %v", err)
+					return
+				}
 			}
 		}
 		_, err := dbpool.Exec(context.Background(),
