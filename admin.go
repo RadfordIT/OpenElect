@@ -186,9 +186,21 @@ func adminRoutes() {
 				}
 			}()
 		}
-
 		c.HTML(http.StatusOK, "adminresults.tmpl", gin.H{
 			"candidates": winners,
 		})
+	})
+	r.POST("/admin/results", adminAuthMiddleware(), func(c *gin.Context) {
+		session := sessions.Default(c)
+		position := c.PostForm("position")
+		candidateID := c.PostForm("candidate_id")
+		_, err := dbpool.Exec(context.Background(), "INSERT INTO winners (position_name, candidate_id, candidate) VALUES ($1, $2, (SELECT name FROM candidates WHERE id = $2))", position, candidateID)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to add winner: %v", err)
+			return
+		}
+		session.AddFlash("Winner successfully added")
+		session.Save()
+		c.Redirect(http.StatusSeeOther, "/admin/results")
 	})
 }

@@ -17,7 +17,7 @@ func dbSetup() {
 	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS candidates")
 	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS votes")
 	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS positions")
-	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS winners")
+	dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS winners")
 	dbpool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS candidates (
     	id TEXT NOT NULL PRIMARY KEY, 
     	name TEXT NOT NULL, 
@@ -42,6 +42,7 @@ func dbSetup() {
 	dbpool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS winners (
 		position_name TEXT NOT NULL,
 		candidate_id TEXT NOT NULL,
+		candidate TEXT NOT NULL,
 		PRIMARY KEY (position_name, candidate_id),
 		FOREIGN KEY (position_name) REFERENCES positions(name) ON DELETE CASCADE,
 		FOREIGN KEY (candidate_id) REFERENCES candidates(id) ON DELETE CASCADE
