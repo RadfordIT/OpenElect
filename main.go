@@ -55,6 +55,7 @@ func main() {
 	voteRoutes()
 	profileRoutes()
 	resultsRoutes()
+	getVideoRoutes()
 
 	r.GET("/", authMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
