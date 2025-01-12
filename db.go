@@ -17,7 +17,7 @@ func dbSetup() {
 	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS candidates")
 	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS votes")
 	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS positions")
-	dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS winners")
+	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS winners")
 	dbpool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS candidates (
     	id TEXT NOT NULL PRIMARY KEY, 
     	name TEXT NOT NULL, 

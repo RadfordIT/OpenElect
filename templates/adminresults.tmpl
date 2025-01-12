@@ -17,7 +17,13 @@
                             <p class="text-lg">{{ .Votes }} Votes</p>
                         </div>
                     </div>
-                    <button class="btn btn-success ml-4">Select as Winner</button>
+                    <form action="/admin/results?position={{ $position }}&candidate={{ .Candidate }}&candidate_id={{ .CandidateID }}" method="post">
+                        {{ if .Winner }}
+                            <button class="btn btn-danger ml-4">Remove as Winner</button>
+                        {{ else }}
+                            <button class="btn btn-success ml-4">Select as Winner</button>
+                        {{ end }}
+                    </form>
                 </div>
             {{ end }}
         </div>
