@@ -3475,6 +3475,10 @@ html {
   max-height: 24rem;
 }
 
+.max-h-\[50vh\] {
+  max-height: 50vh;
+}
+
 .w-10 {
   width: 2.5rem;
 }
@@ -3509,6 +3513,10 @@ html {
 
 .max-w-xs {
   max-width: 20rem;
+}
+
+.max-w-full {
+  max-width: 100%;
 }
 
 .flex-1 {

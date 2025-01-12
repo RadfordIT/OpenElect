@@ -75,6 +75,7 @@ func profileRoutes() {
 					c.String(http.StatusInternalServerError, "Failed to upload video: %v", err)
 					return
 				}
+				fmt.Println("Uploaded video to", videoFilename)
 			}
 		}
 		_, err := dbpool.Exec(context.Background(),

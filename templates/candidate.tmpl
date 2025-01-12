@@ -14,15 +14,15 @@
 </div>
 <div class="md:container md:mx-auto px-4">
     <h1 class="text-5xl font-bold text-center mt-3">{{.name}}</h1>
-    <h2 class="text-3xl font-light text-center">{{.hookstatement}}</h2>
+    <h2 class="text-3xl font-light text-center mt-2">{{.hookstatement}}</h2>
     {{ if not (eq .video "") }}
-        <video controls class="mt-2" width="100%">
+        <video controls class="mt-2 max-w-full max-h-[50vh] mx-auto">
             <source src="/video/{{ .video }}" type="video/mp4">
             Your browser does not support the video tag.
         </video>
     {{ end }}
     <article class="prose md:prose-lg leading-snug mx-auto mt-6 max-w-none">
-        <md-block untrusted>{{.description}}</md-block>
+        <md-block hmin="2" untrusted>{{.description}}</md-block>
     </article>
     {{ range .keywords }}
         <div class="badge badge-primary">{{.}}</div>
