@@ -49,10 +49,33 @@ type Result struct {
 	Winner      bool
 }
 
+type Winner struct {
+	Candidate   string
+	CandidateID string
+}
+
 func resultsRoutes() {
 	r.GET("/results", authMiddleware(), checkElectionEndedMiddleware(), func(c *gin.Context) {
-		winners := make(map[string]string)
-		// TODO: implement
+		winners := make(map[string][]Winner)
+		rows, err := dbpool.Query(context.Background(), `
+			SELECT position_name, candidate_id, candidate
+			FROM winners
+		`)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to get winners: %v", err)
+			return
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var winner Winner
+			var position string
+			err = rows.Scan(&position, &winner.CandidateID, &winner.Candidate)
+			if err != nil {
+				c.String(http.StatusInternalServerError, "Failed to scan winner: %v", err)
+				return
+			}
+			winners[position] = append(winners[position], winner)
+		}
 		c.HTML(http.StatusOK, "results.tmpl", gin.H{
 			"candidates": winners,
 		})
