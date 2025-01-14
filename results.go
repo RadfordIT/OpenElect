@@ -82,14 +82,11 @@ func resultsRoutes() {
 						c.String(http.StatusInternalServerError, "Failed to scan winner: %v", err)
 						return
 					}
-					//TODO: fix
-					fmt.Printf("Executing query: SELECT 1 FROM winners WHERE position_name = %s AND candidate_id = %s\n", position, result.CandidateID)
 					err = dbpool.QueryRow(context.Background(), "SELECT TRUE FROM winners WHERE position_name = $1 AND candidate_id = $2", position, result.CandidateID).Scan(&result.Winner)
 					if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 						c.String(http.StatusInternalServerError, "Failed to check winner: %v", err)
 						return
 					}
-					fmt.Println(result)
 					highest[position] = append(highest[position], result)
 				}
 			}()
