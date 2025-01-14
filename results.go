@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 	"net/http"
 	"slices"
 	"time"
@@ -40,21 +42,23 @@ func checkElectionEndedMiddleware() gin.HandlerFunc {
 	}
 }
 
+type Result struct {
+	Candidate   string
+	CandidateID string
+	Votes       int
+	Winner      bool
+}
+
 func resultsRoutes() {
 	r.GET("/results", authMiddleware(), checkElectionEndedMiddleware(), func(c *gin.Context) {
 		winners := make(map[string]string)
+		// TODO: implement
 		c.HTML(http.StatusOK, "results.tmpl", gin.H{
 			"candidates": winners,
 		})
 	})
 	r.GET("/admin/results", adminAuthMiddleware(), func(c *gin.Context) {
 		positionsMap := configEditor.GetStringMapString("positions")
-		type Result struct {
-			Candidate   string
-			CandidateID string
-			Votes       int
-			Winner      bool
-		}
 		// TODO: concurrency
 		highest := make(map[string][]Result)
 		for position, _ := range positionsMap {
@@ -79,7 +83,12 @@ func resultsRoutes() {
 						return
 					}
 					//TODO: fix
-					err = dbpool.QueryRow(context.Background(), "SELECT 1 FROM winners WHERE position_name = $1 AND candidate_id = $2", position, result.CandidateID).Scan(&result.Winner)
+					fmt.Printf("Executing query: SELECT 1 FROM winners WHERE position_name = %s AND candidate_id = %s\n", position, result.CandidateID)
+					err = dbpool.QueryRow(context.Background(), "SELECT TRUE FROM winners WHERE position_name = $1 AND candidate_id = $2", position, result.CandidateID).Scan(&result.Winner)
+					if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+						c.String(http.StatusInternalServerError, "Failed to check winner: %v", err)
+						return
+					}
 					fmt.Println(result)
 					highest[position] = append(highest[position], result)
 				}
@@ -90,7 +99,7 @@ func resultsRoutes() {
 			"candidates": highest,
 		})
 	})
-	r.POST("/admin/results", adminAuthMiddleware(), func(c *gin.Context) {
+	r.POST("/admin/results/add", adminAuthMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
 		position := c.Query("position")
 		candidate := c.Query("candidate")
@@ -101,6 +110,20 @@ func resultsRoutes() {
 			return
 		}
 		session.AddFlash(fmt.Sprintf("Added winner for %s: %s", position, candidate))
+		session.Save()
+		c.Redirect(http.StatusSeeOther, "/admin/results")
+	})
+	r.POST("/admin/results/remove", adminAuthMiddleware(), func(c *gin.Context) {
+		session := sessions.Default(c)
+		position := c.Query("position")
+		candidate := c.Query("candidate")
+		candidateID := c.Query("candidate_id")
+		_, err := dbpool.Exec(context.Background(), "DELETE FROM winners WHERE position_name = $1 AND candidate_id = $2 AND candidate = $3", position, candidateID, candidate)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to remove winner: %v", err)
+			return
+		}
+		session.AddFlash(fmt.Sprintf("Removed winner for %s", position))
 		session.Save()
 		c.Redirect(http.StatusSeeOther, "/admin/results")
 	})

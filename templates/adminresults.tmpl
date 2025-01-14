@@ -17,13 +17,17 @@
                             <p class="text-lg">{{ .Votes }} Votes</p>
                         </div>
                     </div>
-                    <form action="/admin/results?position={{ $position }}&candidate={{ .Candidate }}&candidate_id={{ .CandidateID }}" method="post">
-                        {{ if .Winner }}
-                            <button class="btn btn-danger ml-4">Remove as Winner</button>
-                        {{ else }}
+                    {{ if .Winner }}
+                        <form action="/admin/results/remove?position={{ $position }}&candidate={{ .Candidate }}&candidate_id={{ .CandidateID }}"
+                              method="post">
+                            <button class="btn btn-error ml-4">Remove as Winner</button>
+                        </form>
+                    {{ else }}
+                        <form action="/admin/results/add?position={{ $position }}&candidate={{ .Candidate }}&candidate_id={{ .CandidateID }}"
+                              method="post">
                             <button class="btn btn-success ml-4">Select as Winner</button>
-                        {{ end }}
-                    </form>
+                        </form>
+                    {{ end }}
                 </div>
             {{ end }}
         </div>

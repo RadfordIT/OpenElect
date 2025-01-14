@@ -25,7 +25,7 @@ func profileRoutes() {
 		groups := session.Get("groups").([]string)
 		var eligiblePositions []string
 		for position, group := range allPositions {
-			if group == " " || slices.Contains(groups, group) {
+			if group == "" || slices.Contains(groups, group) {
 				eligiblePositions = append(eligiblePositions, position)
 			}
 		}

@@ -119,7 +119,7 @@ func adminRoutes() {
 	r.POST("/admin/candidates/:name/reject", adminAuthMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
 		name := c.Param("name")
-		_, err := dbpool.Exec(context.Background(), "DELETE FROM candidates WHERE name = $1", name)
+		_, err := dbpool.Exec(context.Background(), "UPDATE candidates SET published = NULL WHERE name = $1", name)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to reject candidate: %v", err)
 			return
