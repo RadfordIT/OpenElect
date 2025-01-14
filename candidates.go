@@ -84,7 +84,7 @@ func voteRoutes() {
 			return
 		}
 		if voted {
-			_, err = dbpool.Exec(context.Background(), "DELETE FROM votes WHERE candidate = $1 AND candidate_id = $2 AND voter_id = $3 AND position = $4)", candidate, candidateID, user, position)
+			_, err = dbpool.Exec(context.Background(), "DELETE FROM votes WHERE candidate = $1 AND candidate_id = $2 AND voter_id = $3 AND position = $4", candidate, candidateID, user, position)
 			if err != nil {
 				c.String(http.StatusInternalServerError, "Failed to delete vote: %v", err)
 				return
