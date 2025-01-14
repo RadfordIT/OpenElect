@@ -81,6 +81,7 @@ func search(query string) []Candidate {
 	for _, hit := range *results.Hits {
 		document := *hit.Document
 		candidates = append(candidates, Candidate{
+			ID:            document["id"].(string),
 			Name:          document["name"].(string),
 			Keywords:      toStringSlice(document["keywords"].([]interface{})),
 			HookStatement: document["hookstatement"].(string),
