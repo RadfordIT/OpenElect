@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -48,12 +49,14 @@ func voteRoutes() {
 		votesRemaining := configEditor.GetInt("maxvotes") - numVotes
 		allPositions := configEditor.GetStringMapString("positions")
 		groups := session.Get("groups").([]string)
+		fmt.Println(groups)
 		var eligiblePositions []string
 		for position, group := range allPositions {
-			if group == " " || slices.Contains(groups, group) {
+			if group == "" || slices.Contains(groups, group) {
 				eligiblePositions = append(eligiblePositions, position)
 			}
 		}
+		fmt.Println(eligiblePositions)
 		c.HTML(http.StatusOK, "candidate.tmpl", gin.H{
 			"userId":         userId,
 			"name":           name,

@@ -51,6 +51,7 @@ func main() {
 	r.Use(sessions.Sessions("session", store))
 
 	loginRoutes()
+	pfpRoutes()
 	adminRoutes()
 	voteRoutes()
 	profileRoutes()

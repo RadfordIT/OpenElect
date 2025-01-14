@@ -181,7 +181,12 @@ func loginRoutes() {
 				return
 			}
 			fileName := "./pfp/" + claims["sub"].(string) + ".jpg"
-			err = os.WriteFile(fileName, profilePictureData, 0644)
+			pfp, err := cropToSquare(profilePictureData)
+			if err != nil {
+				c.String(http.StatusInternalServerError, "Failed to crop profile picture: %v", err)
+				return
+			}
+			err = os.WriteFile(fileName, pfp, 0644)
 			if err != nil {
 				c.String(http.StatusInternalServerError, "Failed to save profile picture: %v", err)
 				return
@@ -206,18 +211,6 @@ func loginRoutes() {
 		}
 		fmt.Println(session.Get("user_id"), session.Get("groups"), session.Get("pfp"))
 		c.Redirect(http.StatusFound, "/")
-	})
-	r.GET("/pfp", authMiddleware(), func(c *gin.Context) {
-		userId := c.DefaultQuery("user", "")
-		if userId != "" {
-			http.ServeFile(c.Writer, c.Request, "./pfp/"+userId+".jpg")
-		}
-		session := sessions.Default(c)
-		pfp := session.Get("pfp")
-		if pfp == nil {
-			pfp = "./pfp/default_pfp.jpg"
-		}
-		http.ServeFile(c.Writer, c.Request, pfp.(string))
 	})
 	r.GET("/logout", authMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
