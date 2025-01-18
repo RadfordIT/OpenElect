@@ -20,7 +20,6 @@ func profileRoutes() {
 		var keywords []string
 		var positions []string
 		dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE id = $1", session.Get("user_id")).Scan(&userId, nil, &description, &hookstatement, &video, &keywords, &positions, nil)
-		fmt.Println(video)
 		allPositions := configEditor.GetStringMapString("positions")
 		groups := session.Get("groups").([]string)
 		var eligiblePositions []string
@@ -29,7 +28,6 @@ func profileRoutes() {
 				eligiblePositions = append(eligiblePositions, position)
 			}
 		}
-		fmt.Println(eligiblePositions)
 		c.HTML(http.StatusOK, "profile.tmpl", gin.H{
 			"userId":        userId,
 			"description":   description,
