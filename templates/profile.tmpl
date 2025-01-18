@@ -32,6 +32,7 @@
                     class="file-input file-input-bordered file-input-primary w-full max-w-xs"
                     accept="video/mp4"
                     name="video"
+                    id="videoinput"
             />
         </label>
         {{ if not (eq .video "") }}
@@ -128,6 +129,11 @@
             editor.setContent(e.content.substring(0, 3000));
         }
         document.getElementById("editorlabel").textContent = `${3000 - e.content.length} characters remaining`;
+    });
+    document.getElementById("videoinput").addEventListener("change", (e) => {
+        if (e.target.files.length > 0) {
+            document.getElementById("deletevideo").checked = true;
+        }
     });
 </script>
 {{ template "footer.tmpl" }}
