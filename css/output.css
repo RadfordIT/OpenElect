@@ -3674,10 +3674,6 @@ html {
   font-weight: 300;
 }
 
-.leading-snug {
-  line-height: 1.375;
-}
-
 .text-base-content {
   --tw-text-opacity: 1;
   color: var(--fallback-bc,oklch(var(--bc)/var(--tw-text-opacity, 1)));
