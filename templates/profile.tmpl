@@ -9,15 +9,21 @@
             <div class="editorcontainer">
                 <div id="toolbar"></div>
                 <textarea required class="textarea textarea-bordered h-24" placeholder="Description" id="editor"
-                          name="description"></textarea>
+                          name="description" maxlength="1500"></textarea>
+            </div>
+            <div class="label">
+                <span class="label-text-alt" id="editorlabel">1500 characters remaining</span>
             </div>
         </label>
         <label class="form-control">
             <div class="label">
                 <h1 class="text-2xl font-bold mt-4">Hook Statement</h1>
             </div>
-            <input required type="text" placeholder="Hook Statement" class="input input-bordered w-full max-w-xs"
-                   name="hookstatement" value="{{ .hookstatement }}">
+            <input required type="text" placeholder="Hook Statement" class="input input-bordered w-full"
+                   name="hookstatement" id="hookstatement" value="{{ .hookstatement }}" maxlength="150">
+            <div class="label">
+                <span class="label-text-alt" id="hookstatementlabel">150 characters remaining</span>
+            </div>
         </label>
         <label class="form-control">
             <h1 class="text-2xl font-bold mt-4">Video (optional)</h1>
@@ -110,6 +116,15 @@
             e.preventDefault();
             document.getElementById("add-tag-button").click();
         }
+    });
+
+    document.getElementById("hookstatementlabel").textContent = `${150 - document.getElementById("hookstatement").value.length} characters remaining`;
+    document.getElementById("hookstatement").addEventListener("input", (e) => {
+        document.getElementById("hookstatementlabel").textContent = `${150 - e.target.value.length} characters remaining`;
+    });
+    document.getElementById("editorlabel").textContent = `${1500 - document.getElementById("editor").value.length} characters remaining`;
+    editor.addEventListener("change", (e) => {
+        document.getElementById("editorlabel").textContent = `${1500 - e.content.length} characters remaining`;
     });
 </script>
 {{ template "footer.tmpl" }}
