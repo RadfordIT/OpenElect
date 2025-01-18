@@ -122,9 +122,12 @@
     document.getElementById("hookstatement").addEventListener("input", (e) => {
         document.getElementById("hookstatementlabel").textContent = `${150 - e.target.value.length} characters remaining`;
     });
-    document.getElementById("editorlabel").textContent = `${1500 - document.getElementById("editor").value.length} characters remaining`;
+    document.getElementById("editorlabel").textContent = `${3000 - document.getElementById("editor").value.length} characters remaining`;
     editor.addEventListener("change", (e) => {
-        document.getElementById("editorlabel").textContent = `${1500 - e.content.length} characters remaining`;
+        if (e.content.length > 3000) {
+            editor.setContent(e.content.substring(0, 3000));
+        }
+        document.getElementById("editorlabel").textContent = `${3000 - e.content.length} characters remaining`;
     });
 </script>
 {{ template "footer.tmpl" }}

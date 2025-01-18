@@ -21,7 +21,7 @@ func dbSetup() {
 	dbpool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS candidates (
     	id TEXT NOT NULL PRIMARY KEY, 
     	name TEXT NOT NULL, 
-    	description TEXT NOT NULL CHECK (char_length(description) <= 5000), 
+    	description TEXT NOT NULL CHECK (char_length(description) <= 3000), 
     	hookstatement TEXT NOT NULL CHECK (char_length(hookstatement) <= 150), 
     	video TEXT DEFAULT NULL,
     	keywords TEXT[] CHECK (array_length(keywords, 1) <= 6), 
