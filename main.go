@@ -68,8 +68,9 @@ func main() {
 		flashes := session.Flashes()
 		session.Save()
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"text":    candidates,
-			"flashes": flashes,
+			"text":       candidates,
+			"flashes":    flashes,
+			"indeximage": configEditor.GetString("indeximage"),
 		})
 	})
 	r.Run()

@@ -36,6 +36,7 @@ func adminRoutes() {
 			},
 			"positions":       configEditor.GetStringMapString("positions"),
 			"maxvotes":        configEditor.GetInt("maxvotes"),
+			"indeximage":      configEditor.GetString("indeximage"),
 			"candidategroup":  configEditor.GetString("candidategroup"),
 			"endelectiontime": configEditor.GetString("endelectiontime"),
 		})
@@ -61,6 +62,8 @@ func adminRoutes() {
 		configEditor.Set("maxvotes", maxVotes)
 		candidateGroup := c.PostForm("candidategroup")
 		configEditor.Set("candidategroup", candidateGroup)
+		indexImage := c.PostForm("indeximage")
+		configEditor.Set("indeximage", indexImage)
 		endElectionTime := c.PostForm("endelectiontime")
 		configEditor.Set("endelectiontime", endElectionTime)
 		configEditor.WriteConfig()
