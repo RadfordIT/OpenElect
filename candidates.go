@@ -99,4 +99,29 @@ func voteRoutes() {
 			c.Redirect(http.StatusFound, "/"+candidate)
 		}
 	})
+
+	r.GET("/votes", authMiddleware(), func(c *gin.Context) {
+		session := sessions.Default(c)
+		user := session.Get("user_id").(string)
+		rows, err := dbpool.Query(context.Background(), "SELECT candidate, candidate_id, position FROM votes WHERE voter_id = $1", user)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to get votes: %v", err)
+			return
+		}
+		var votes [][]string
+		for rows.Next() {
+			var candidate string
+			var candidateID string
+			var position string
+			err = rows.Scan(&candidate, &candidateID, &position)
+			if err != nil {
+				c.String(http.StatusInternalServerError, "Failed to scan votes: %v", err)
+				return
+			}
+			votes = append(votes, []string{candidate, candidateID, position})
+		}
+		c.HTML(http.StatusOK, "votes.tmpl", gin.H{
+			"votes": votes,
+		})
+	})
 }
