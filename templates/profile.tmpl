@@ -7,9 +7,7 @@
                 <p>A short description of yourself and what you stand for</p>
             </div>
             <div class="editorcontainer">
-                <div id="toolbar"></div>
-                <textarea required class="textarea textarea-bordered h-24" placeholder="Description" id="editor"
-                          name="description" maxlength="1500"></textarea>
+                <div id="editor"></div>
             </div>
             <div class="label">
                 <span class="label-text-alt" id="editorlabel">1500 characters remaining</span>
@@ -84,14 +82,11 @@
         </div>
     </template>
 </div>
-<script type="text/javascript">
-    var editor = new TinyMDE.Editor({
-        textarea: "editor",
-        content: "{{ .description }}",
-    });
-    var commandBar = new TinyMDE.CommandBar({
-        element: "toolbar",
-        editor: editor,
+<script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script>
+<script type="module">
+    const quill = new Quill("#editor", {
+        theme: "snow",
+        placeholder: "A short description of yourself and what you stand for",
     });
 
     document.getElementById("add-tag-button").addEventListener("click", () => {
@@ -123,12 +118,12 @@
     document.getElementById("hookstatement").addEventListener("input", (e) => {
         document.getElementById("hookstatementlabel").textContent = `${150 - e.target.value.length} characters remaining`;
     });
-    document.getElementById("editorlabel").textContent = `${3000 - document.getElementById("editor").value.length} characters remaining`;
-    editor.addEventListener("change", (e) => {
-        if (e.content.length > 3000) {
-            editor.setContent(e.content.substring(0, 3000));
+    document.getElementById("editorlabel").textContent = `${3000 - quill.getLength()} characters remaining`;
+    quill.on('text-change', () => {
+        if (quill.getLength() > 3000) {
+            quill.deleteText(3000, quill.getLength() - 3000);
         }
-        document.getElementById("editorlabel").textContent = `${3000 - e.content.length} characters remaining`;
+        document.getElementById("editorlabel").textContent = `${3000 - quill.getLength()} characters remaining`;
     });
     document.getElementById("videoinput").addEventListener("change", (e) => {
         if (e.target.files.length > 0) {

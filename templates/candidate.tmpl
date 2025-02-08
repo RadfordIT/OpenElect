@@ -22,7 +22,7 @@
         </video>
     {{ end }}
     <article class="prose md:prose-lg mx-auto mt-6 max-w-none">
-        <md-block hmin="2" untrusted>{{.description}}</md-block>
+        {{.description}}
     </article>
     {{ range .keywords }}
         <div class="badge badge-primary">{{.}}</div>
