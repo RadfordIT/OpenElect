@@ -8,6 +8,7 @@
             </div>
             <div class="editorcontainer">
                 <div id="editor"></div>
+                <textarea id="description" name="description" hidden></textarea>
             </div>
             <div class="label">
                 <span class="label-text-alt" id="editorlabel">1500 characters remaining</span>
@@ -36,7 +37,7 @@
         {{ if not (eq .video "") }}
             <div class="form-control flex flex-row items-center mt-2">
                 <input type="checkbox" class="checkbox checkbox-warning" name="deletevideo" id="deletevideo" value="true" />
-                <label class="ml-2 cursor-pointer">Delete Video</label>
+                <label class="ml-2 cursor-pointer">Delete/Replace Video</label>
             </div>
             <input type="hidden" name="oldvideo" value="{{ .video }}">
             <video controls class="mt-2 max-w-full max-h-[50vh]">
@@ -89,6 +90,10 @@
         placeholder: "A short description of yourself and what you stand for",
     });
 
+    document.addEventListener('DOMContentLoaded', function() {
+        quill.root.innerHTML = "{{ .description }}";
+    });
+
     document.getElementById("add-tag-button").addEventListener("click", () => {
         const input = document.getElementById("tag-input");
         if (!input.value.trim()) {
@@ -129,6 +134,9 @@
         if (e.target.files.length > 0) {
             document.getElementById("deletevideo").checked = true;
         }
+    });
+    document.getElementById("main-form").addEventListener("submit", (e) => {
+        document.getElementById("description").value = quill.root.innerHTML;
     });
 </script>
 {{ template "footer.tmpl" }}

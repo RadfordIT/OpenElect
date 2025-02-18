@@ -33,6 +33,7 @@ func main() {
 	authSetup()
 	searchSetup()
 	storageSetup()
+	emailSetup()
 	dbSetup()
 	defer dbpool.Close()
 

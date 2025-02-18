@@ -21,7 +21,7 @@
             Your browser does not support the video tag.
         </video>
     {{ end }}
-    <article class="prose md:prose-lg mx-auto mt-6 max-w-none">
+    <article id="description" class="prose md:prose-lg mx-auto mt-6 max-w-none">
         {{.description}}
     </article>
     {{ range .keywords }}
@@ -75,4 +75,9 @@
         </div>
     {{ end }}
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('description').innerHTML = {{.description}};
+    });
+</script>
 {{ template "footer.tmpl" . }}
