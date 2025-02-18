@@ -14,13 +14,14 @@ func dbSetup() {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
-	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS candidates")
-	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS votes")
+	dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS candidates")
+	dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS votes")
 	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS positions")
-	//dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS winners")
+	dbpool.Exec(context.Background(), "DROP TABLE IF EXISTS winners")
 	dbpool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS candidates (
     	id TEXT NOT NULL PRIMARY KEY, 
     	name TEXT NOT NULL, 
+    	email TEXT NOT NULL,
     	description TEXT NOT NULL CHECK (char_length(description) <= 3000), 
     	hookstatement TEXT NOT NULL CHECK (char_length(hookstatement) <= 150), 
     	video TEXT DEFAULT NULL,

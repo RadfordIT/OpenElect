@@ -19,7 +19,7 @@ func profileRoutes() {
 		var video string
 		var keywords []string
 		var positions []string
-		dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE id = $1", session.Get("user_id")).Scan(&userId, nil, &description, &hookstatement, &video, &keywords, &positions, nil)
+		dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE id = $1", session.Get("user_id")).Scan(&userId, nil, nil, &description, &hookstatement, &video, &keywords, &positions, nil)
 		allPositions := configEditor.GetStringMapString("positions")
 		groups := session.Get("groups").([]string)
 		var eligiblePositions []string
@@ -42,6 +42,7 @@ func profileRoutes() {
 		session := sessions.Default(c)
 		name := session.Get("name").(string)
 		userID := session.Get("user_id").(string)
+		email := session.Get("email").(string)
 		description := c.PostForm("description")
 		hookstatement := c.PostForm("hookstatement")
 		tags := c.PostFormArray("tag[]")
@@ -78,9 +79,9 @@ func profileRoutes() {
 		}
 		_, err := dbpool.Exec(context.Background(),
 			`INSERT INTO candidates 
-    			(id, name, description, hookstatement, video, keywords, positions, published) VALUES ($1, $2, $3, $4, $5, $6, $7, NULL)
-				ON CONFLICT(id) DO UPDATE SET id = $1, name = $2, description = $3, hookstatement = $4, video = $5, keywords = $6, positions = $7, published = NULL`,
-			userID, name, description, hookstatement, videoFilename, tags, positions,
+    			(id, name, email, description, hookstatement, video, keywords, positions, published) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NULL)
+				ON CONFLICT(id) DO UPDATE SET id = $1, name = $2, email = $3, description = $4, hookstatement = $5, video = $6, keywords = $7, positions = $8, published = NULL`,
+			userID, name, email, description, hookstatement, videoFilename, tags, positions,
 		)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to upsert candidate: %v", err)
@@ -97,7 +98,7 @@ func profileRoutes() {
 		var keywords []string
 		var positions []string
 		video := ""
-		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS NULL", name).Scan(&userId, &name, &description, &hookstatement, &video, &keywords, &positions, nil)
+		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS NULL", name).Scan(&userId, &name, nil, &description, &hookstatement, &video, &keywords, &positions, nil)
 		if err != nil {
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
 			return

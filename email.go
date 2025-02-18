@@ -23,7 +23,7 @@ func emailSetup() {
 	}
 }
 
-func sendEmail(from string, to string, subject string, body string) {
+func sendEmail(from string, to string, subject string, body string) error {
 	email := postmark.Email{
 		From:     from,
 		To:       to,
@@ -31,7 +31,5 @@ func sendEmail(from string, to string, subject string, body string) {
 		TextBody: body,
 	}
 	_, err := emailClient.SendEmail(context.Background(), email)
-	if err != nil {
-		log.Printf("Error sending email: %v\n", err)
-	}
+	return err
 }

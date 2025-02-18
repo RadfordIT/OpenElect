@@ -79,7 +79,7 @@ func adminRoutes() {
 		var candidates []Candidate
 		for rows.Next() {
 			var candidate Candidate
-			err = rows.Scan(&candidate.ID, &candidate.Name, &candidate.Description, &candidate.HookStatement, nil, &candidate.Keywords, &candidate.Positions, nil)
+			err = rows.Scan(&candidate.ID, &candidate.Name, nil, &candidate.Description, &candidate.HookStatement, nil, &candidate.Keywords, &candidate.Positions, nil)
 			if err != nil {
 				c.String(http.StatusInternalServerError, "Failed to scan candidate: %v", err)
 				return
@@ -100,7 +100,7 @@ func adminRoutes() {
 		var video string
 		var keywords []string
 		var positions []string
-		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS FALSE", name).Scan(&userId, &name, &description, &hookstatement, &video, &keywords, &positions, nil)
+		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS FALSE", name).Scan(&userId, &name, nil, &description, &hookstatement, &video, &keywords, &positions, nil)
 		if err != nil {
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
 			return
@@ -125,6 +125,18 @@ func adminRoutes() {
 			c.String(http.StatusInternalServerError, "Failed to reject candidate: %v", err)
 			return
 		}
+		email := dbpool.QueryRow(context.Background(), "SELECT email FROM candidates WHERE name = $1", name)
+		var userEmail string
+		err = email.Scan(&userEmail)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to get email: %v", err)
+			return
+		}
+		err = sendEmail(session.Get("email").(string), userEmail, "Candidate Rejected", "Your candidate profile has been rejected. Please log in to edit your profile.")
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to send email: %v", err)
+			return
+		}
 		session.AddFlash("Candidate " + name + " successfully rejected")
 		session.Save()
 		c.Redirect(http.StatusSeeOther, "/admin/candidates")
@@ -138,16 +150,22 @@ func adminRoutes() {
 			return
 		}
 		var userId string
+		var email string
 		var description string
 		var hookstatement string
 		var keywords []string
 		var positions []string
-		err = dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS TRUE", name).Scan(&userId, &name, &description, &hookstatement, nil, &keywords, &positions, nil)
+		err = dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS TRUE", name).Scan(&userId, &name, &email, &description, &hookstatement, nil, &keywords, &positions, nil)
 		if err != nil {
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
 			return
 		}
 		index(userId, name, description, hookstatement, keywords, positions)
+		err = sendEmail(session.Get("email").(string), email, "Candidate Accepted", "Your candidate profile has been accepted. Please log in to view your profile.")
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to send email: %v", err)
+			return
+		}
 		session.AddFlash("Candidate " + name + " successfully accepted")
 		session.Save()
 		c.Redirect(http.StatusSeeOther, "/admin/candidates")

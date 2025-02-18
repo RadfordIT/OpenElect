@@ -197,6 +197,36 @@ func loginRoutes() {
 			session.Set("pfp", "./pfp/default_pfp.jpg")
 		}
 
+		emailUrl := "https://graph.microsoft.com/v1.0/me"
+		req, _ = http.NewRequest("GET", emailUrl, nil)
+		req.Header.Set("Authorization", "Bearer "+token.AccessToken)
+		emailclient := &http.Client{}
+		resp, err = emailclient.Do(req)
+		var userEmail string
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to fetch email: %v", err)
+			return
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode == http.StatusOK {
+			var result map[string]interface{}
+			if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+				c.String(http.StatusInternalServerError, "Failed to decode email: %v", err)
+				return
+			}
+			if email, ok := result["mail"].(string); ok && email != "" {
+				userEmail = email
+			} else if upn, ok := result["userPrincipalName"].(string); ok && upn != "" {
+				userEmail = upn
+			} else {
+				c.String(http.StatusInternalServerError, "Failed to extract email")
+				return
+			}
+		} else {
+			c.String(http.StatusInternalServerError, "Failed to fetch email: %v", err)
+			return
+		}
+
 		groups, err := fetchUserGroups(token.AccessToken)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to extract groups: %v", err)
@@ -205,6 +235,7 @@ func loginRoutes() {
 		session.Set("name", claims["name"])
 		session.Set("user_id", claims["sub"])
 		session.Set("groups", groups)
+		session.Set("email", userEmail)
 		if err := session.Save(); err != nil {
 			c.String(http.StatusInternalServerError, "Failed to save session: %v", err)
 			return
