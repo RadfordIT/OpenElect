@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 	"net/http"
 	"slices"
 )
@@ -19,7 +20,21 @@ func profileRoutes() {
 		var video string
 		var keywords []string
 		var positions []string
-		dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE id = $1", session.Get("user_id")).Scan(&userId, nil, nil, &description, &hookstatement, &video, &keywords, &positions, nil)
+		err := dbpool.QueryRow(context.Background(), "SELECT * FROM pending WHERE id = $1", session.Get("user_id")).Scan(&userId, nil, nil, &description, &hookstatement, &video, &keywords, &positions)
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE id = $1", session.Get("user_id")).Scan(&userId, nil, nil, &description, &hookstatement, &video, &keywords, &positions)
+				if err != nil {
+					if !errors.Is(err, pgx.ErrNoRows) {
+						c.String(http.StatusInternalServerError, "Failed to get profile: %v", err)
+						return
+					}
+				}
+			} else {
+				c.String(http.StatusInternalServerError, "Failed to get profile: %v", err)
+				return
+			}
+		}
 		allPositions := configEditor.GetStringMapString("positions")
 		groups := session.Get("groups").([]string)
 		var eligiblePositions []string
@@ -78,9 +93,9 @@ func profileRoutes() {
 			}
 		}
 		_, err := dbpool.Exec(context.Background(),
-			`INSERT INTO candidates 
-    			(id, name, email, description, hookstatement, video, keywords, positions, published) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NULL)
-				ON CONFLICT(id) DO UPDATE SET id = $1, name = $2, email = $3, description = $4, hookstatement = $5, video = $6, keywords = $7, positions = $8, published = NULL`,
+			`INSERT INTO pending 
+    			(id, name, email, description, hookstatement, video, keywords, positions) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+				ON CONFLICT(id) DO UPDATE SET id = $1, name = $2, email = $3, description = $4, hookstatement = $5, video = $6, keywords = $7, positions = $8`,
 			userID, name, email, description, hookstatement, videoFilename, tags, positions,
 		)
 		if err != nil {
@@ -98,7 +113,7 @@ func profileRoutes() {
 		var keywords []string
 		var positions []string
 		video := ""
-		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS NULL", name).Scan(&userId, &name, nil, &description, &hookstatement, &video, &keywords, &positions, nil)
+		err := dbpool.QueryRow(context.Background(), "SELECT * FROM pending WHERE name = $1", name).Scan(&userId, &name, nil, &description, &hookstatement, &video, &keywords, &positions)
 		if err != nil {
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
 			return
@@ -117,17 +132,11 @@ func profileRoutes() {
 	})
 	r.POST("/preview", candidateAuthMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
-		name := session.Get("name").(string)
-		_, err := dbpool.Exec(context.Background(), "UPDATE candidates SET published = FALSE WHERE name = $1", name)
-		if err != nil {
-			c.String(http.StatusNotFound, "Candidate not found: %v", err)
-			return
-		}
-		deindex(session.Get("user_id").(string))
 		session.AddFlash("Your profile has been submitted for review.")
-		err = session.Save()
+		err := session.Save()
 		if err != nil {
-			fmt.Println(err)
+			c.String(http.StatusInternalServerError, "Failed to save session: %v", err)
+			return
 		}
 		c.Redirect(http.StatusSeeOther, "/")
 	})

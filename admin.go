@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"errors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 	"net/http"
 	"strconv"
 )
@@ -71,7 +73,7 @@ func adminRoutes() {
 	})
 	r.GET("/admin/candidates", adminAuthMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
-		rows, err := dbpool.Query(context.Background(), "SELECT * FROM candidates WHERE published IS FALSE")
+		rows, err := dbpool.Query(context.Background(), "SELECT * FROM pending")
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to query candidates: %v", err)
 			return
@@ -79,7 +81,7 @@ func adminRoutes() {
 		var candidates []Candidate
 		for rows.Next() {
 			var candidate Candidate
-			err = rows.Scan(&candidate.ID, &candidate.Name, nil, &candidate.Description, &candidate.HookStatement, nil, &candidate.Keywords, &candidate.Positions, nil)
+			err = rows.Scan(&candidate.ID, &candidate.Name, nil, &candidate.Description, &candidate.HookStatement, nil, &candidate.Keywords, &candidate.Positions)
 			if err != nil {
 				c.String(http.StatusInternalServerError, "Failed to scan candidate: %v", err)
 				return
@@ -100,7 +102,7 @@ func adminRoutes() {
 		var video string
 		var keywords []string
 		var positions []string
-		err := dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS FALSE", name).Scan(&userId, &name, nil, &description, &hookstatement, &video, &keywords, &positions, nil)
+		err := dbpool.QueryRow(context.Background(), "SELECT * FROM pending WHERE name = $1", name).Scan(&userId, &name, nil, &description, &hookstatement, &video, &keywords, &positions)
 		if err != nil {
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
 			return
@@ -120,19 +122,21 @@ func adminRoutes() {
 	r.POST("/admin/candidates/:name/reject", adminAuthMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
 		name := c.Param("name")
-		_, err := dbpool.Exec(context.Background(), "UPDATE candidates SET published = NULL WHERE name = $1", name)
+		var email string
+		err := dbpool.QueryRow(context.Background(), "SELECT email FROM candidates WHERE name = $1", name).Scan(&email)
 		if err != nil {
-			c.String(http.StatusInternalServerError, "Failed to reject candidate: %v", err)
-			return
+			if errors.Is(err, pgx.ErrNoRows) {
+				err = dbpool.QueryRow(context.Background(), "SELECT email FROM pending WHERE name = $1", name).Scan(&email)
+				if err != nil {
+					c.String(http.StatusNotFound, "Candidate not found: %v", err)
+					return
+				}
+			} else {
+				c.String(http.StatusInternalServerError, "Failed to get email: %v", err)
+				return
+			}
 		}
-		email := dbpool.QueryRow(context.Background(), "SELECT email FROM candidates WHERE name = $1", name)
-		var userEmail string
-		err = email.Scan(&userEmail)
-		if err != nil {
-			c.String(http.StatusInternalServerError, "Failed to get email: %v", err)
-			return
-		}
-		err = sendEmail(session.Get("email").(string), userEmail, "Candidate Rejected", "Your candidate profile has been rejected. Please log in to edit your profile.")
+		err = sendEmail(session.Get("email").(string), email, "Candidate Rejected", "Your candidate profile has been rejected. Please log in to edit your profile.")
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to send email: %v", err)
 			return
@@ -144,7 +148,11 @@ func adminRoutes() {
 	r.POST("/admin/candidates/:name/accept", adminAuthMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
 		name := c.Param("name")
-		_, err := dbpool.Exec(context.Background(), "UPDATE candidates SET published = TRUE WHERE name = $1", name)
+		_, err := dbpool.Exec(context.Background(),
+			`WITH candidate AS (DELETE FROM pending WHERE name = $1 RETURNING *)
+			INSERT INTO candidates SELECT * FROM candidate
+			ON CONFLICT(id) DO UPDATE SET id = EXCLUDED.id, name = EXCLUDED.name, email = EXCLUDED.email, description = EXCLUDED.description, hookstatement = EXCLUDED.hookstatement, video = EXCLUDED.video, keywords = EXCLUDED.keywords, positions = EXCLUDED.positions`,
+			name)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to publish candidate: %v", err)
 			return
@@ -155,12 +163,16 @@ func adminRoutes() {
 		var hookstatement string
 		var keywords []string
 		var positions []string
-		err = dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1 AND published IS TRUE", name).Scan(&userId, &name, &email, &description, &hookstatement, nil, &keywords, &positions, nil)
+		err = dbpool.QueryRow(context.Background(), "SELECT * FROM candidates WHERE name = $1", name).Scan(&userId, &name, &email, &description, &hookstatement, nil, &keywords, &positions)
 		if err != nil {
 			c.String(http.StatusNotFound, "Candidate not found: %v", err)
 			return
 		}
-		index(userId, name, description, hookstatement, keywords, positions)
+		err = index(userId, name, description, hookstatement, keywords, positions)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to index candidate: %v", err)
+			return
+		}
 		err = sendEmail(session.Get("email").(string), email, "Candidate Accepted", "Your candidate profile has been accepted. Please log in to view your profile.")
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to send email: %v", err)

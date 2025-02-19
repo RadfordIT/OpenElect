@@ -92,8 +92,8 @@ func search(query string) []Candidate {
 	return candidates
 }
 
-func index(id string, name string, description string, hookstatement string, keywords []string, positions []string) {
-	client.Collection("candidates").Documents().Upsert(context.Background(), &Candidate{
+func index(id string, name string, description string, hookstatement string, keywords []string, positions []string) error {
+	_, err := client.Collection("candidates").Documents().Upsert(context.Background(), &Candidate{
 		ID:            id,
 		Name:          name,
 		Keywords:      keywords,
@@ -101,6 +101,7 @@ func index(id string, name string, description string, hookstatement string, key
 		Description:   description,
 		Positions:     positions,
 	})
+	return err
 }
 
 func deindex(id string) {
