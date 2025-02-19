@@ -12,6 +12,11 @@ import (
 )
 
 func profileRoutes() {
+	type Keyword struct {
+		Name  string
+		Count int
+	}
+
 	r.GET("/profile", candidateAuthMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
 		var userId string
@@ -43,6 +48,31 @@ func profileRoutes() {
 				eligiblePositions = append(eligiblePositions, position)
 			}
 		}
+		rows, err := dbpool.Query(context.Background(), `
+			SELECT keyword, COUNT(*) AS occurrences
+			FROM (
+				SELECT unnest(keywords) AS keyword FROM candidates
+				UNION ALL
+				SELECT unnest(keywords) FROM pending
+			) AS all_keywords
+			GROUP BY keyword
+			ORDER BY occurrences DESC`,
+		)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to get keywords: %v", err)
+			return
+		}
+		defer rows.Close()
+		var allKeywords []Keyword
+		for rows.Next() {
+			var keyword Keyword
+			err = rows.Scan(&keyword.Name, &keyword.Count)
+			if err != nil {
+				c.String(http.StatusInternalServerError, "Failed to scan keyword: %v", err)
+				return
+			}
+			allKeywords = append(allKeywords, keyword)
+		}
 		c.HTML(http.StatusOK, "profile.tmpl", gin.H{
 			"userId":        userId,
 			"description":   description,
@@ -51,6 +81,8 @@ func profileRoutes() {
 			"keywords":      keywords,
 			"positions":     positions,
 			"allpositions":  eligiblePositions,
+			"allkeywords":   allKeywords,
+			"maxtags":       configEditor.GetInt("maxtags"),
 		})
 	})
 	r.POST("/profile", candidateAuthMiddleware(), func(c *gin.Context) {

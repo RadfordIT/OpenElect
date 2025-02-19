@@ -65,6 +65,32 @@
                     class="input input-bordered w-full">
             <button type="button" id="add-tag-button" class="btn btn-primary">Add</button>
         </div>
+        <h2 class="text-md font-bold mt-2">Common Tags</h2>
+        <div class="max-h-80 overflow-scroll bg-base-200 rounded-lg shadow-md">
+            <table class="table table-zebra">
+                <colgroup>
+                    <col style="width: 40%">
+                    <col style="width: 10%">
+                    <col style="width: 50%">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Count</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                {{ range .allkeywords }}
+                    <tr>
+                        <td>{{ .Name }}</td>
+                        <td>{{ .Count }}</td>
+                        <td>
+                            <button type="button" class="btn btn-primary w-full" onclick="addTag({{ .Name }})">Add</button>
+                        </td>
+                    </tr>
+                {{ end }}
+            </table>
+        </div>
         <h1 class="text-2xl font-bold mt-4">Positions to run for:</h1>
         {{ range .allpositions }}
             <div class="form-control flex flex-row items-center mt-2">
@@ -84,7 +110,7 @@
     </template>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script>
-<script type="module">
+<script>
     const quill = new Quill("#editor", {
         theme: "snow",
         placeholder: "A short description of yourself and what you stand for",
@@ -92,6 +118,9 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         quill.root.innerHTML = "{{ .description }}";
+        if (document.getElementById("tag-container").children.length >= {{ .maxtags }}) {
+            document.getElementById("tag-input").disabled = true;
+        }
     });
 
     document.getElementById("add-tag-button").addEventListener("click", () => {
@@ -105,11 +134,32 @@
 
         document.getElementById("tag-container").insertAdjacentHTML("beforeend", tagHTML);
         input.value = "";
+
+        if (document.getElementById("tag-container").children.length >= {{ .maxtags }}) {
+            input.disabled = true;
+        }
     });
+
+    function addTag(tag) {
+        if (document.getElementById("tag-container").children.length >= {{ .maxtags }}) {
+            return;
+        }
+        const template = document.getElementById("tag-template").innerHTML;
+        const tagHTML = template.replace(/\{\{tag\}\}/g, tag);
+
+        document.getElementById("tag-container").insertAdjacentHTML("beforeend", tagHTML);
+
+        if (document.getElementById("tag-container").children.length >= {{ .maxtags }}) {
+            document.getElementById("tag-input").disabled = true;
+        }
+    }
 
     document.getElementById("tag-container").addEventListener("click", (e) => {
         if (e.target.classList.contains("remove-tag-button")) {
             e.target.closest(".badge").remove();
+        }
+        if (document.getElementById("tag-container").children.length < {{ .maxtags }}) {
+            document.getElementById("tag-input").disabled = false;
         }
     });
     document.getElementById("tag-input").addEventListener("keypress", (e) => {

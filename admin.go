@@ -38,6 +38,7 @@ func adminRoutes() {
 			},
 			"positions":       configEditor.GetStringMapString("positions"),
 			"maxvotes":        configEditor.GetInt("maxvotes"),
+			"maxtags":         configEditor.GetInt("maxtags"),
 			"indeximage":      configEditor.GetString("indeximage"),
 			"candidategroup":  configEditor.GetString("candidategroup"),
 			"endelectiontime": configEditor.GetString("endelectiontime"),
@@ -61,7 +62,13 @@ func adminRoutes() {
 			c.String(http.StatusBadRequest, "Invalid max votes: %v", err)
 			return
 		}
+		maxTags, err := strconv.Atoi(c.PostForm("maxtags"))
+		if err != nil {
+			c.String(http.StatusBadRequest, "Invalid max tags: %v", err)
+			return
+		}
 		configEditor.Set("maxvotes", maxVotes)
+		configEditor.Set("maxtags", maxTags)
 		candidateGroup := c.PostForm("candidategroup")
 		configEditor.Set("candidategroup", candidateGroup)
 		indexImage := c.PostForm("indeximage")
