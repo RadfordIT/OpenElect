@@ -122,6 +122,7 @@ func adminRoutes() {
 	r.POST("/admin/candidates/:name/reject", adminAuthMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
 		name := c.Param("name")
+		reason := c.PostForm("reason")
 		var email string
 		err := dbpool.QueryRow(context.Background(), "SELECT email FROM candidates WHERE name = $1", name).Scan(&email)
 		if err != nil {
@@ -136,9 +137,18 @@ func adminRoutes() {
 				return
 			}
 		}
-		err = sendEmail(session.Get("email").(string), email, "Candidate Rejected", "Your candidate profile has been rejected. Please log in to edit your profile.")
+		body := "Your candidate profile has been rejected. Please log in to edit your profile."
+		if reason != "" {
+			body += "\n\nReason: \n" + reason
+		}
+		err = sendEmail(session.Get("email").(string), email, "Candidate Rejected", body)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to send email: %v", err)
+			return
+		}
+		_, err = dbpool.Exec(context.Background(), "DELETE FROM pending WHERE name = $1", name)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to reject candidate: %v", err)
 			return
 		}
 		session.AddFlash("Candidate " + name + " successfully rejected")

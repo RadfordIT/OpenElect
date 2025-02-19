@@ -56,9 +56,19 @@
             <p>{{ . }}</p>
         {{ end }}
         <div class="flex w-full">
-            <form method="post" action="/admin/candidates/{{ .name }}/reject" class="flex-1 mr-1">
-                <button class="btn btn-error w-full" type="submit">Reject</button>
-            </form>
+            <dialog id="reject_modal" class="modal modal-bottom sm:modal-middle">
+                <div class="modal-box">
+                    <form method="dialog">
+                        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                    </form>
+                    <h3 class="text-lg font-bold">Rejecting {{ .name }}</h3>
+                    <form method="post" action="/admin/candidates/{{ .name }}/reject" class="flex-1 mr-1">
+                        <textarea name="reason" class="textarea textarea-bordered my-5 w-full" placeholder="Reason for rejection (optional)"></textarea>
+                        <button class="btn btn-error w-full" type="submit">Reject</button>
+                    </form>
+                </div>
+            </dialog>
+            <button class="btn btn-error w-full" onclick="reject_modal.showModal()">Reject</button>
             <form method="post" action="/admin/candidates/{{ .name }}/accept" class="flex-1 ml-1">
                 <button class="btn btn-success w-full" type="submit">Accept</button>
             </form>
