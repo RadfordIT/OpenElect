@@ -28,7 +28,7 @@ func sendEmail(from string, to string, subject string, body string) error {
 		From:     from,
 		To:       to,
 		Subject:  subject,
-		TextBody: body,
+		TextBody: body + "\n\nThis is an automated message sent from OpenElect.",
 	}
 	_, err := emailClient.SendEmail(context.Background(), email)
 	return err
