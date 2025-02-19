@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
@@ -69,6 +70,36 @@ func adminRoutes() {
 		}
 		configEditor.Set("maxvotes", maxVotes)
 		configEditor.Set("maxtags", maxTags)
+		_, err = dbpool.Exec(context.Background(), `UPDATE candidates SET keywords = keywords[:$1] WHERE array_length(keywords, 1) > $1`, maxTags)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to truncate candidates max tags: %v", err)
+			return
+		}
+		_, err = dbpool.Exec(context.Background(), `ALTER TABLE candidates DROP CONSTRAINT IF EXISTS candidates_keywords_check;`)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to remove candidates max tags constraint: %v", err)
+			return
+		}
+		_, err = dbpool.Exec(context.Background(), fmt.Sprintf(`ALTER TABLE candidates ADD CONSTRAINT candidates_keywords_check CHECK (array_length(keywords, 1) <= %d);`, maxTags))
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to set new candidates max tags constraint: %v", err)
+			return
+		}
+		_, err = dbpool.Exec(context.Background(), `UPDATE pending SET keywords = keywords[:$1] WHERE array_length(keywords, 1) > $1`, maxTags)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to truncate pending max tags: %v", err)
+			return
+		}
+		_, err = dbpool.Exec(context.Background(), `ALTER TABLE pending DROP CONSTRAINT IF EXISTS pending_keywords_check;`)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to remove pending max tags constraint: %v", err)
+			return
+		}
+		_, err = dbpool.Exec(context.Background(), fmt.Sprintf(`ALTER TABLE pending ADD CONSTRAINT pending_keywords_check CHECK (array_length(keywords, 1) <= %d);`, maxTags))
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to set new pending max tags constraint: %v", err)
+			return
+		}
 		candidateGroup := c.PostForm("candidategroup")
 		configEditor.Set("candidategroup", candidateGroup)
 		indexImage := c.PostForm("indeximage")
