@@ -193,7 +193,7 @@ func loginRoutes() {
 			}
 			session.Set("pfp", fileName)
 		} else {
-			c.String(http.StatusInternalServerError, "Failed to fetch profile picture: %v", err)
+			session.AddFlash("Warning: no profile picture found")
 			session.Set("pfp", "./pfp/default_pfp.jpg")
 		}
 
