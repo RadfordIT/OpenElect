@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
-	"net/http"
-	"strconv"
 )
 
 func adminRoutes() {
@@ -179,7 +180,7 @@ func adminRoutes() {
 		if reason != "" {
 			body += "\n\nReason: \n" + reason
 		}
-		err = sendEmail(session.Get("email").(string), email, "Candidate Rejected", body)
+		err = sendEmail(session.Get("name").(string), session.Get("email").(string), email, "Candidate Rejected", body)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to send email: %v", err)
 			return
@@ -221,7 +222,7 @@ func adminRoutes() {
 			c.String(http.StatusInternalServerError, "Failed to index candidate: %v", err)
 			return
 		}
-		err = sendEmail(session.Get("email").(string), email, "Candidate Accepted", "Your candidate profile has been accepted. Please log in to view your profile.")
+		err = sendEmail(session.Get("name").(string), session.Get("email").(string), email, "Candidate Accepted", "Your candidate profile has been accepted. Please log in to view your profile.")
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to send email: %v", err)
 			return

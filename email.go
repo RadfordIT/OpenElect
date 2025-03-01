@@ -2,9 +2,10 @@ package main
 
 import (
 	"context"
-	"github.com/mrz1836/postmark"
 	"log"
 	"os"
+
+	"github.com/mrz1836/postmark"
 )
 
 var emailClient *postmark.Client
@@ -23,7 +24,7 @@ func emailSetup() {
 	}
 }
 
-func sendEmail(from string, to string, subject string, body string) error {
+func sendEmail(name string, from string, to string, subject string, body string) error {
 	email := postmark.Email{
 		From:     from,
 		To:       to,
