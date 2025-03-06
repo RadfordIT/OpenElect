@@ -193,6 +193,7 @@ func loginRoutes() {
 			}
 			session.Set("pfp", fileName)
 		} else {
+			log.Println("Warning: no profile picture found", resp)
 			session.AddFlash("Warning: no profile picture found")
 			session.Set("pfp", "./pfp/default_pfp.jpg")
 		}
