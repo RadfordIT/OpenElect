@@ -31,6 +31,8 @@ services:
     tailwind:
         image: "node:slim"
         working_dir: /OpenElect
+        ports:
+            - "8082:8082"
         volumes:
             - .:/OpenElect
         tty: true
