@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: openelect-deployment
+spec:
+    replicas: 3
+    selector:
+        matchLabels:
+            app: openelect
+    template:
+        metadata:
+            labels:
+                app: openelect
+        spec:
+            containers:
+                - name: openelect-web
+                  image: openelect
+                  imagePullPolicy: Never
+                  env:
+                      - name: DATABASE_URL
+                        value: "postgres://postgres:postgres@postgres/postgres?sslmode=disable"
+                      - name: TYPESENSE_URL
+                        value: "http://typesense:8108"
+                  ports:
+                      - containerPort: 8080
+                - name: openelect-postgres
+                  image: postgres:17
+                  env:
+                      - name: POSTGRES_USER
+                        value: "postgres"
+                      - name: POSTGRES_PASSWORD
+                        value: "postgres"
+                      - name: POSTGRES_DB
+                        value: "postgres"
+                  ports:
+                      - containerPort: 5432
+                  volumeMounts:
+                      - name: postgres-storage
+                        mountPath: /var/lib/postgresql/data
+                - name: openelect-typesense
+                  image: typesense/typesense:27.1
+                  ports:
+                      - containerPort: 8108
+                  env:
+                      - name: TYPESENSE_API_KEY
+                        value: "xyz"
+                      - name: TYPESENSE_DATA_DIR
+                        value: "/data"
+                  volumeMounts:
+                      - name: typesense-storage
+                        mountPath: /data
+                - name: openelect-tailwind
+                  image: node:slim
+                  workingDir: /OpenElect
+                  ports:
+                      - containerPort: 8082
+                  command: [ "npx", "tailwindcss", "-i", "./css/styles.css", "-o", "./css/output.css", "--watch" ]
+                - name: openelect-admin
+                  image: adminer
+                  ports:
+                      - containerPort: 8081
+            volumes:
+                - name: postgres-storage
+                  persistentVolumeClaim:
+                      claimName: postgres-pvc
+                - name: typesense-storage
+                  persistentVolumeClaim:
+                      claimName: typesense-pvc
