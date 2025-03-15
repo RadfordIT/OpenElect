@@ -17,36 +17,43 @@ spec:
                   image: openelect
                   imagePullPolicy: Never
                   envFrom:
-                      -   configMapRef:
-                              name: openelect-config
+                      - configMapRef:
+                            name: openelect-config
                   ports:
                       - containerPort: 8080
                 - name: openelect-postgres
-                  image: postgres:17
+                  image: 'postgres:17'
                   envFrom:
-                      -   configMapRef:
-                              name: openelect-config
+                      - configMapRef:
+                            name: openelect-config
                   ports:
                       - containerPort: 5432
                   volumeMounts:
                       - name: postgres-storage
                         mountPath: /var/lib/postgresql/data
                 - name: openelect-typesense
-                  image: typesense/typesense:27.1
+                  image: 'typesense/typesense:27.1'
                   ports:
                       - containerPort: 8108
                   envFrom:
-                      -   configMapRef:
-                              name: openelect-config
+                      - configMapRef:
+                            name: openelect-config
                   volumeMounts:
                       - name: typesense-storage
                         mountPath: /data
                 - name: openelect-tailwind
-                  image: node:slim
+                  image: 'node:slim'
                   workingDir: /OpenElect
                   ports:
                       - containerPort: 8082
-                  command: [ "npx", "tailwindcss", "-i", "./css/styles.css", "-o", "./css/output.css", "--watch" ]
+                  command:
+                      - npx
+                      - tailwindcss
+                      - '-i'
+                      - ./css/styles.css
+                      - '-o'
+                      - ./css/output.css
+                      - '--watch'
                 - name: openelect-admin
                   image: adminer
                   ports:
