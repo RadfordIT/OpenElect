@@ -31,10 +31,6 @@ spec:
                   volumeMounts:
                       - name: postgres-storage
                         mountPath: /var/lib/postgresql/data
-                - name: openelect-admin
-                  image: adminer
-                  ports:
-                      - containerPort: 8081
             volumes:
                 - name: postgres-storage
                   persistentVolumeClaim:
