@@ -1,3 +1,0 @@
-[submodule "openelect/Typesense-Kubernetes-Operator"]
-	path = openelect/Typesense-Kubernetes-Operator
-	url = https://github.com/sai3010/Typesense-Kubernetes-Operator.git
