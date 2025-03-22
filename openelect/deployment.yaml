@@ -17,7 +17,19 @@ spec:
                   image: openelect:latest
                   imagePullPolicy: Never
                   envFrom:
-                      - configMapRef:
-                            name: openelect-config
+                    - configMapRef:
+                        name: openelect-config
+                  volumeMounts:
+                    - mountPath: /app/config
+                      name: colors-config
                   ports:
                       - containerPort: 8080
+                - name: tailwind
+                  image: tailwind
+                  imagePullPolicy: Never
+                  volumeMounts:
+                    - mountPath: /app/config
+                      name: colors-config
+            volumes:
+                - name: colors-config
+                  emptyDir: {}
