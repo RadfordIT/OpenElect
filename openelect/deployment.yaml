@@ -14,7 +14,7 @@ spec:
         spec:
             containers:
                 - name: openelect-web
-                  image: openelect
+                  image: openelect:latest
                   imagePullPolicy: Never
                   envFrom:
                       - configMapRef:
