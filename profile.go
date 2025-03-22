@@ -102,7 +102,9 @@ func profileRoutes() {
 				c.String(http.StatusInternalServerError, "Failed to upload video: %v", err)
 				return
 			}
-			if errors.Is(err, http.ErrMissingFile) {
+			if errors.Is(err, http.ErrMissingFile) && videoFilename == "" {
+				// user didn't upload a video and didn't have one before, so we don't need to do anything
+			} else if errors.Is(err, http.ErrMissingFile) {
 				err = deleteVideo(videoFilename)
 				if err != nil {
 					c.String(http.StatusInternalServerError, "Failed to delete video: %v", err)
