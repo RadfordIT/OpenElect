@@ -16,10 +16,10 @@ spec:
                 - name: copy-config-files
                   image: tailwind:latest
                   imagePullPolicy: Never
-                  command: ["sh", "-c", "cp /tmp/colors.json /app/config/colors.json && cp /tmp/config.yaml /app/config/config.yaml"]
+                  command: ["sh", "-c", "cp /tmp/colors.json /OpenElect/config/colors.json && cp /tmp/config.yaml /OpenElect/config/config.yaml"]
                   volumeMounts:
                     - name: colors-config
-                      mountPath: /app/config
+                      mountPath: /OpenElect/config
             containers:
                 - name: openelect-web
                   image: openelect:latest
@@ -28,16 +28,16 @@ spec:
                     - configMapRef:
                         name: openelect-config
                   volumeMounts:
-                    - mountPath: /app/config
+                    - mountPath: /OpenElect/config
                       name: colors-config
                   ports:
                       - containerPort: 8080
                 - name: tailwind
                   image: tailwind:latest
                   imagePullPolicy: Never
-                  #command: ["sleep", "infinity"]
+                  command: ["sleep", "infinity"]
                   volumeMounts:
-                    - mountPath: /app/config
+                    - mountPath: /OpenElect/config
                       name: colors-config
             volumes:
                 - name: colors-config
