@@ -25,7 +25,7 @@ spec:
                   ports:
                       - containerPort: 8080
                 - name: tailwind
-                  image: tailwind
+                  image: tailwind:latest
                   imagePullPolicy: Never
                   volumeMounts:
                     - mountPath: /app/config
