@@ -5,4 +5,4 @@ COPY . .
 COPY ./config/colors.json /tmp/colors.json
 COPY ./config/config.yaml /tmp/config.yaml
 COPY ./config/output.css /tmp/output.css
-CMD ["npx", "tailwindcss", "-i", "./css/styles.css", "-o", "./css/output.css", "--watch"]
+CMD ["npx", "tailwindcss", "-i", "./css/styles.css", "-o", "./config/output.css", "--watch"]
