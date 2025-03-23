@@ -2,6 +2,6 @@ FROM node:latest
 WORKDIR /app
 
 RUN npm install -g tailwindcss@3
-COPY openelect .
+COPY . .
 
 CMD ["npx", "tailwindcss", "-i", "./css/styles.css", "-o", "./css/output.css", "--watch"]
