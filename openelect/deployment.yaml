@@ -16,7 +16,7 @@ spec:
                 - name: copy-config-files
                   image: tailwind:latest
                   imagePullPolicy: Never
-                  command: ["sh", "-c", "cp /tmp/colors.json /OpenElect/config/colors.json && cp /tmp/config.yaml /OpenElect/config/config.yaml"]
+                  command: ["sh", "-c", "cp /tmp/colors.json /OpenElect/config/colors.json && cp /tmp/config.yaml /OpenElect/config/config.yaml && cp /tmp/output.css /OpenElect/config/output.css"]
                   volumeMounts:
                     - name: colors-config
                       mountPath: /OpenElect/config
