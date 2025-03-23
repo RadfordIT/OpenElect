@@ -45,7 +45,7 @@ func main() {
 		},
 	})
 	r.StaticFile("/favicon.ico", "./static/favicon.ico")
-	r.StaticFile("/style.css", "./css/output.css")
+	r.StaticFile("/style.css", "./config/output.css")
 	r.StaticFile("/icon.png", "./static/icon.png")
 	r.LoadHTMLGlob("templates/*")
 	store := cookie.NewStore([]byte("secret"))
