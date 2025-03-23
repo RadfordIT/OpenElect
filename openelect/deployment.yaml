@@ -27,7 +27,6 @@ spec:
                 - name: tailwind
                   image: tailwind:latest
                   imagePullPolicy: Never
-                  command: ["sleep", "infinity"]
                   volumeMounts:
                     - mountPath: /app/config
                       name: colors-config
