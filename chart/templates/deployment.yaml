@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}-openelect-deployment
+  labels:
+  {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.openelectDeployment.replicas }}
+  selector:
+    matchLabels:
+      app: openelect
+    {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: openelect
+      {{- include "chart.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        envFrom:
+        - configMapRef:
+            name: openelect-config
+        image: {{ .Values.openelectDeployment.openelectWeb.image.repository }}:{{ .Values.openelectDeployment.openelectWeb.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.openelectDeployment.openelectWeb.imagePullPolicy }}
+        name: openelect-web
+        ports:
+        - containerPort: 8080
+        resources: {}
+        volumeMounts:
+        - mountPath: /OpenElect/config
+          name: colors-config
+      - command:
+        - sleep
+        - infinity
+        env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.openelectDeployment.tailwind.image.repository }}:{{ .Values.openelectDeployment.tailwind.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.openelectDeployment.tailwind.imagePullPolicy }}
+        name: tailwind
+        resources: {}
+        volumeMounts:
+        - mountPath: /OpenElect/config
+          name: colors-config
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - cp /tmp/colors.json /OpenElect/config/colors.json && cp /tmp/config.yaml /OpenElect/config/config.yaml
+          && cp /tmp/output.css /OpenElect/config/output.css
+        env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.openelectDeployment.copyConfigFiles.image.repository }}:{{ .Values.openelectDeployment.copyConfigFiles.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.openelectDeployment.copyConfigFiles.imagePullPolicy
+          }}
+        name: copy-config-files
+        resources: {}
+        volumeMounts:
+        - mountPath: /OpenElect/config
+          name: colors-config
+      volumes:
+      - emptyDir: {}
+        name: colors-config

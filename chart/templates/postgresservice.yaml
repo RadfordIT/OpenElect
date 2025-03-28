@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "chart.fullname" . }}-postgres-service
+  labels:
+  {{- include "chart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.postgresService.type }}
+  selector:
+    app: postgres
+    {{- include "chart.selectorLabels" . | nindent 4 }}
+  ports:
+  {{- .Values.postgresService.ports | toYaml | nindent 2 }}

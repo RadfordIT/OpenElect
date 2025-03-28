@@ -1,0 +1,64 @@
+adminerDeployment:
+  adminer:
+    image:
+      repository: adminer
+      tag: latest
+  replicas: 1
+kubernetesClusterDomain: cluster.local
+openelectDeployment:
+  copyConfigFiles:
+    image:
+      repository: tailwind
+      tag: latest
+    imagePullPolicy: Never
+  openelectWeb:
+    image:
+      repository: openelect
+      tag: latest
+    imagePullPolicy: Never
+  replicas: 1
+  tailwind:
+    image:
+      repository: tailwind
+      tag: latest
+    imagePullPolicy: Never
+openelectService:
+  ports:
+  - nodePort: 30081
+    port: 8080
+    targetPort: 8080
+  type: NodePort
+postgresDeployment:
+  postgres:
+    image:
+      repository: postgres
+      tag: "17"
+  replicas: 1
+postgresService:
+  ports:
+  - port: 5432
+    protocol: TCP
+    targetPort: 5432
+  type: NodePort
+pvc:
+  postgresPvc:
+    storageRequest: 5Gi
+  typesensePvc:
+    storageRequest: 5Gi
+typesenseDeployment:
+  replicas: 1
+  typesense:
+    args:
+    - --data-dir
+    - /data
+    - --api-key=xyz
+    - --enable-cors
+    image:
+      repository: typesense/typesense
+      tag: "27.0"
+typesenseService:
+  ports:
+  - port: 8108
+    protocol: TCP
+    targetPort: 8108
+  type: NodePort

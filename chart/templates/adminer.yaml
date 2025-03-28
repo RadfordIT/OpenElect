@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}-adminer-deployment
+  labels:
+  {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.adminerDeployment.replicas }}
+  selector:
+    matchLabels:
+      app: adminer
+    {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: adminer
+      {{- include "chart.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.adminerDeployment.adminer.image.repository }}:{{ .Values.adminerDeployment.adminer.image.tag
+          | default .Chart.AppVersion }}
+        name: adminer
+        ports:
+        - containerPort: 8080
+        resources: {}

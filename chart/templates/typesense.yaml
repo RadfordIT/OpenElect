@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}-typesense-deployment
+  labels:
+  {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.typesenseDeployment.replicas }}
+  selector:
+    matchLabels:
+      app: typesense
+    {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: typesense
+      {{- include "chart.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - args: {{- toYaml .Values.typesenseDeployment.typesense.args | nindent 8 }}
+        env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.typesenseDeployment.typesense.image.repository }}:{{ .Values.typesenseDeployment.typesense.image.tag
+          | default .Chart.AppVersion }}
+        name: typesense
+        ports:
+        - containerPort: 8108
+        resources: {}
+        volumeMounts:
+        - mountPath: /data
+          name: typesense-data
+      volumes:
+      - name: typesense-data
+        persistentVolumeClaim:
+          claimName: {{ include "chart.fullname" . }}-typesense-pvc
