@@ -62,3 +62,11 @@ typesenseService:
     protocol: TCP
     targetPort: 8108
   type: NodePort
+ingress:
+  enabled: true
+  host: localhost
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+
+
