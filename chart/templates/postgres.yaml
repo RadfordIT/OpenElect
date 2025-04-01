@@ -21,8 +21,8 @@ spec:
         - name: KUBERNETES_CLUSTER_DOMAIN
           value: {{ quote .Values.kubernetesClusterDomain }}
         envFrom:
-        - configMapRef:
-            name: openelect-config
+            - secretRef:
+                  name: {{ .Values.secrets.secretRef }}
         image: {{ .Values.postgresDeployment.postgres.image.repository }}:{{ .Values.postgresDeployment.postgres.image.tag
           | default .Chart.AppVersion }}
         name: postgres

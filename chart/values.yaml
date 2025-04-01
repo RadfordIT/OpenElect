@@ -68,5 +68,5 @@ ingress:
   className: "nginx"
   annotations:
     kubernetes.io/ingress.class: "nginx"
-
-
+secrets:
+  secretRef: secrets
