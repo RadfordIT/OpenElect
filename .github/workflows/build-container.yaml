@@ -18,3 +18,7 @@ jobs:
       run: docker build . --file Dockerfile --tag ghcr.io/radfordit/openelect-app
     - name: Build the Docker image - Tailwind
       run: docker build . --file tailwind.Dockerfile --tag ghcr.io/radfordit/openelect-tailwind
+    - name: Push image - App
+      run: docker push ghcr.io/radfordit/openelect-app
+    - name: Push image - Tailwind
+      run: docker push ghcr.io/radfordit/openelect-tailwind
