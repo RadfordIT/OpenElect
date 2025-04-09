@@ -8,20 +8,16 @@ kubernetesClusterDomain: cluster.local
 openelectDeployment:
   copyConfigFiles:
     image:
-      repository: tailwind
-      tag: latest
-    imagePullPolicy: Never
+      repository: ghcr.io/radfordit/openelect/tailwind:latest
+    imagePullPolicy: Always
   openelectWeb:
     image:
-      repository: openelect
-      tag: latest
-    imagePullPolicy: Never
+      repository: ghcr.io/radfordit/openelect/app:latest
+    imagePullPolicy: Always
   replicas: 1
   tailwind:
     image:
-      repository: tailwind
-      tag: latest
-    imagePullPolicy: Never
+      repository: ghcr.io/radfordit/openelect/tailwind:latest
 openelectService:
   ports:
   - nodePort: 30081
