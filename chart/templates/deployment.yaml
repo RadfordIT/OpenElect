@@ -33,10 +33,7 @@ spec:
         volumeMounts:
         - mountPath: /OpenElect/config
           name: colors-config
-      - command:
-        - sleep
-        - infinity
-        env:
+      - env:
         - name: KUBERNETES_CLUSTER_DOMAIN
           value: {{ quote .Values.kubernetesClusterDomain }}
         image: {{ .Values.openelectDeployment.tailwind.image.repository }}:{{ .Values.openelectDeployment.tailwind.image.tag
