@@ -3,4 +3,4 @@ node_modules/*
 .env
 pfp/*
 !pfp/default_pfp.jpg
-secret.yaml
+chart/templates/secret.yaml
