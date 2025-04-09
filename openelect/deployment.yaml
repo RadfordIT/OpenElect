@@ -32,7 +32,6 @@ spec:
                       - containerPort: 8080
                 - name: tailwind
                   image: ghcr.io/radfordit/openelect/tailwind:latest
-                  command: ["sleep", "infinity"]
                   volumeMounts:
                     - mountPath: /OpenElect/config
                       name: colors-config
