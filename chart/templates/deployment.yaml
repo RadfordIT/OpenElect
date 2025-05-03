@@ -33,22 +33,11 @@ spec:
         volumeMounts:
         - mountPath: /OpenElect/config
           name: colors-config
-      - env:
-        - name: KUBERNETES_CLUSTER_DOMAIN
-          value: {{ quote .Values.kubernetesClusterDomain }}
-        image: {{ .Values.openelectDeployment.tailwind.image.repository }}:{{ .Values.openelectDeployment.tailwind.image.tag
-          | default .Chart.AppVersion }}
-        imagePullPolicy: {{ .Values.openelectDeployment.tailwind.imagePullPolicy }}
-        name: tailwind
-        resources: {}
-        volumeMounts:
-        - mountPath: /OpenElect/config
-          name: colors-config
       initContainers:
       - command:
         - sh
         - -c
-        - cp /tmp/colors.json /OpenElect/config/colors.json && cp /tmp/config.yaml /OpenElect/config/config.yaml
+        - cp /tmp/styles.css /OpenElect/config/styles.css && cp /tmp/colors.json /OpenElect/config/colors.json && cp /tmp/config.yaml /OpenElect/config/config.yaml
           && cp /tmp/output.css /OpenElect/config/output.css
         env:
         - name: KUBERNETES_CLUSTER_DOMAIN
@@ -63,5 +52,6 @@ spec:
         - mountPath: /OpenElect/config
           name: colors-config
       volumes:
-      - emptyDir: {}
-        name: colors-config
+          -   name: colors-config
+              persistentVolumeClaim:
+                  claimName: {{ include "chart.fullname" . }}-config-pvc

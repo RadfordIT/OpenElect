@@ -44,6 +44,8 @@ pvc:
     storageRequest: 5Gi
   typesensePvc:
     storageRequest: 5Gi
+  configPvc:
+    storageRequest: 1Gi
 typesenseDeployment:
   replicas: 1
   typesense:
