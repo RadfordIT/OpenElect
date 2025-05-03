@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}-tailwind-deployment
+  labels:
+  {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.openelectDeployment.replicas }}
+  selector:
+      matchLabels:
+          app: tailwind
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: tailwind
+      {{- include "chart.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.openelectDeployment.tailwind.image.repository }}:{{ .Values.openelectDeployment.tailwind.image.tag | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.openelectDeployment.tailwind.imagePullPolicy }}
+        name: tailwind
+        workingDir: /OpenElect
+        command: ["tailwindcss"]
+        args:
+          - build
+          - --input=./config/styles.css
+          - --output=./config/output.css
+          - --watch
+          - --poll
+      initContainers:
+        - command:
+          - sh
+          - -c
+          - cp /tmp/styles.css /OpenElect/config/styles.css && cp /tmp/colors.json /OpenElect/config/colors.json && cp /tmp/config.yaml /OpenElect/config/config.yaml
+              && cp /tmp/output.css /OpenElect/config/output.css
+          env:
+           - name: KUBERNETES_CLUSTER_DOMAIN
+             value: {{ quote .Values.kubernetesClusterDomain }}
+          image: {{ .Values.openelectDeployment.copyConfigFiles.image.repository }}:{{ .Values.openelectDeployment.copyConfigFiles.image.tag | default .Chart.AppVersion }}
+          imagePullPolicy: {{ .Values.openelectDeployment.copyConfigFiles.imagePullPolicy }}
+          name: copy-config-files
+          resources: {}
+          volumeMounts:
+                  - mountPath: /OpenElect/config
+                    name: colors-config
+      volumes:
+      - name: colors-config
+        persistentVolumeClaim:
+          claimName: {{ include "chart.fullname" . }}-config-pvc
