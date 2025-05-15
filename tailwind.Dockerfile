@@ -1,6 +1,6 @@
 FROM node:latest
 WORKDIR /OpenElect
-RUN npm install -g tailwindcss@latest
+RUN npm install tailwindcss @tailwindcss/cli
 RUN npm install -D @tailwindcss/typography
 RUN npm i -D daisyui@latest
 COPY . .
