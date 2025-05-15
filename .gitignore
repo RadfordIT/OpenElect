@@ -4,3 +4,5 @@ node_modules/*
 pfp/*
 !pfp/default_pfp.jpg
 chart/templates/secret.yaml
+.pem
+.csv
