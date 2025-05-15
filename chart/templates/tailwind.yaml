@@ -24,8 +24,9 @@ spec:
         imagePullPolicy: {{ .Values.openelectDeployment.tailwind.imagePullPolicy }}
         name: tailwind
         workingDir: /OpenElect
-        command: ["tailwindcss"]
+        command: ["npx"]
         args:
+          - @tailwindcss/cli
           - build
           - --input=./config/styles.css
           - --output=./config/output.css
