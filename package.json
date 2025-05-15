@@ -11,11 +11,9 @@
     "url": "https://github.com/wenbang24/OpenElect.git"
   },
   "private": true,
-  "dependencies": {
-    "daisyui": "^4.12.14"
-  },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.15",
-    "tailwindcss": "^3.4.15"
+    "daisyui": "^5.0.35",
+    "tailwindcss": "^4.1.6"
   }
 }
