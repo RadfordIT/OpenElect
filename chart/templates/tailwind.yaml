@@ -27,7 +27,6 @@ spec:
         command: ["npx"]
         args:
           - "@tailwindcss/cli"
-          - build
           - --input=./config/styles.css
           - --output=./config/output.css
           - --watch
