@@ -9,5 +9,5 @@ COPY ./config/config.yaml /tmp/config.yaml
 COPY ./config/output.css /tmp/output.css
 COPY ./config/styles.css /tmp/styles.css
 RUN cat ./config/styles.css
-RUN tailwindcss -i ./config/styles.css -o ./config/output.css
-CMD ["tailwindcss", "-i", "./config/styles.css", "-o", "./config/output.css", "--watch"]
+RUN npx @tailwindcss/cli -i ./config/styles.css -o ./config/output.css
+CMD ["npx", "@tailwindcss/cli", "-i", "./config/styles.css", "-o", "./config/output.css", "--watch"]
