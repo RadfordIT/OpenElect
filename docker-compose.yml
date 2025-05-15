@@ -36,7 +36,7 @@ services:
         volumes:
             - .:/OpenElect
         tty: true
-        command: [ "npx", "tailwindcss", "-i", "./config/styles.css", "-o", "./config/output.css", "--watch" ]
+        command: [ "npx", "@tailwindcss/cli", "-i", "./config/styles.css", "-o", "./config/output.css", "--watch" ]
 
     admin:
         image: "adminer"

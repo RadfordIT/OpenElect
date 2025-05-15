@@ -1,8 +1,8 @@
 FROM node:latest
 WORKDIR /OpenElect
-RUN npm install -g tailwindcss@3
+RUN npm install -g tailwindcss@latest
 RUN npm install -D @tailwindcss/typography
-RUN npm i -D daisyui@4
+RUN npm i -D daisyui@latest
 COPY . .
 COPY ./config/colors.json /tmp/colors.json
 COPY ./config/config.yaml /tmp/config.yaml
