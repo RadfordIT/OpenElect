@@ -71,3 +71,4 @@ ingress:
     kubernetes.io/ingress.class: "nginx"
 secrets:
   secretRef: secrets
+environment: prod  # use --set environment=dev in development
