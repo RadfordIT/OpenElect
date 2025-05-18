@@ -4,6 +4,12 @@ adminerDeployment:
       repository: adminer
       tag: latest
   replicas: 1
+adminerService:
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  type: NodePort
 kubernetesClusterDomain: cluster.local
 openelectDeployment:
   copyConfigFiles:
