@@ -20,6 +20,10 @@ spec:
       - env:
         - name: KUBERNETES_CLUSTER_DOMAIN
           value: {{ quote .Values.kubernetesClusterDomain }}
+        {{- if eq .Values.environment "prod" }}
+        - name: GIN_MODE
+          value: release
+        {{- end }}
         envFrom:
             - secretRef:
                 name: {{ .Values.secrets.secretRef }}
