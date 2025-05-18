@@ -22,4 +22,14 @@ spec:
                             name: {{ include "chart.fullname" . }}-openelect-service
                             port:
                                 number: {{ index .Values.openelectService.ports 0 "port" }}
+        - host: adminer.{{ .Values.ingress.host | default "localhost" }}
+          http:
+              paths:
+                  - path: /
+                    pathType: Prefix
+                    backend:
+                        service:
+                            name: {{ include "chart.fullname" . }}-adminer-service
+                            port:
+                                number: {{ index .Values.adminerService.ports 0 "port" }}
 {{- end }}
