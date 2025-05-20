@@ -37,24 +37,6 @@ spec:
         volumeMounts:
         - mountPath: /OpenElect/config
           name: colors-config
-      initContainers:
-      - command:
-        - sh
-        - -c
-        - cp /tmp/styles.css /OpenElect/config/styles.css && cp /tmp/colors.json /OpenElect/config/colors.json && cp /tmp/config.yaml /OpenElect/config/config.yaml
-          && cp /tmp/output.css /OpenElect/config/output.css
-        env:
-        - name: KUBERNETES_CLUSTER_DOMAIN
-          value: {{ quote .Values.kubernetesClusterDomain }}
-        image: {{ .Values.openelectDeployment.copyConfigFiles.image.repository }}:{{ .Values.openelectDeployment.copyConfigFiles.image.tag
-          | default .Chart.AppVersion }}
-        imagePullPolicy: {{ .Values.openelectDeployment.copyConfigFiles.imagePullPolicy
-          }}
-        name: copy-config-files
-        resources: {}
-        volumeMounts:
-        - mountPath: /OpenElect/config
-          name: colors-config
       volumes:
           -   name: colors-config
               persistentVolumeClaim:
