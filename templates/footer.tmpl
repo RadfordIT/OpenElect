@@ -21,6 +21,21 @@
         <a class="link link-hover" href="/results">Results</a>
     </nav>
 </footer>
+<script>
+async function fetchColorVars() {
+    const response = await fetch('/colors.json');
+    const colorVars = await response.json();
+    console.log(colorVars);
+    const root = document.documentElement;
+    Object.entries(colorVars.colors).forEach(([key, value]) => {
+        console.log(key, value);
+        const formattedKey = `--color-${key.replace(/_/g, '-')}`;
+        console.log(formattedKey);
+        root.style.setProperty(formattedKey, value);
+    });
+}
+fetchColorVars();
+</script>
 </body>
 </html>
 {{ end }}

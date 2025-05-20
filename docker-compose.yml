@@ -10,8 +10,6 @@ services:
         depends_on:
             - postgres
             - typesense
-            - tailwind
-
     postgres:
         image: "postgres:17"
         env_file: .env
@@ -19,7 +17,6 @@ services:
             - postgres:/var/lib/postgresql/data
         ports:
             - "5432:5432"
-
     typesense:
         image: "typesense/typesense:27.1"
         ports:
@@ -27,17 +24,6 @@ services:
         volumes:
             - typesense:/data
         env_file: .env
-
-    tailwind:
-        image: "node:slim"
-        working_dir: /OpenElect
-        ports:
-            - "8082:8082"
-        volumes:
-            - .:/OpenElect
-        tty: true
-        command: [ "npx", "@tailwindcss/cli", "-i", "./config/styles.css", "-o", "./config/output.css", "--watch" ]
-
     admin:
         image: "adminer"
         ports:

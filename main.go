@@ -47,6 +47,7 @@ func main() {
 	r.StaticFile("/favicon.ico", "./static/favicon.ico")
 	r.StaticFile("/style.css", "./config/output.css")
 	r.StaticFile("/icon.png", "./static/icon.png")
+	r.StaticFile("/colors.json", "./config/colors.json")
 	r.LoadHTMLGlob("templates/*")
 	store := cookie.NewStore([]byte("secret"))
 	r.Use(sessions.Sessions("session", store))
