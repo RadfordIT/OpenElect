@@ -1,6 +1,7 @@
 .idea/*
 node_modules/*
 .env
+.helm-env
 pfp/*
 !pfp/default_pfp.jpg
 chart/templates/secret.yaml

@@ -1,24 +1,24 @@
 {
   "colors": {
     "accent": "#962330",
-    "accentContent": "#000000",
-    "base100": "#fffffe",
-    "base200": "#f0efea",
-    "base300": "#d8d8d8",
-    "baseContent": "#000000",
+    "accent_content": "#000000",
+    "base_100": "#fffffe",
+    "base_200": "#f0efea",
+    "base_300": "#d8d8d8",
+    "base_content": "#000000",
     "error": "#d55338",
-    "errorContent": "#000000",
+    "error_content": "#000000",
     "info": "#fcfa4f",
-    "infoContent": "#000000",
+    "info_content": "#000000",
     "neutral": "#33dbff",
-    "neutralContent": "#000000",
+    "neutral_content": "#000000",
     "primary": "#c7c2b3",
-    "primaryContent": "#000000",
+    "primary_content": "#000000",
     "secondary": "#2333ee",
-    "secondaryContent": "#000000",
-    "success": "#b5f86c",
-    "successContent": "#000000",
+    "secondary_content": "#000000",
+    "success": "#23ec00",
+    "success_content": "#000000",
     "warning": "#d29c54",
-    "warningContent": "#000000"
+    "warning_content": "#000000"
   }
 }
