@@ -16,6 +16,7 @@ import (
 var r *gin.Engine
 var dbpool *pgxpool.Pool
 var configEditor, colorsEditor *viper.Viper
+var storageProvider string
 
 func main() {
 	configEditor = viper.New()
@@ -23,6 +24,7 @@ func main() {
 	configEditor.SetConfigType("yaml")
 	configEditor.AddConfigPath("./config")
 	configEditor.ReadInConfig()
+	storageProvider = configEditor.GetString("storageProvider")
 
 	colorsEditor = viper.New()
 	colorsEditor.SetConfigName("colors")
