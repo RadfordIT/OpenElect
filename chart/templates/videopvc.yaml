@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: video-pvc
+spec:
+  accessModes: [ ReadWriteMany ]
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: csi-s3-minio
+  volumeAttributes:
+    bucketName: openelect-videos
