@@ -12,14 +12,13 @@ import (
 )
 
 var (
-	connectionString = os.Getenv("AZURE_STORAGE_CONNECTION_STRING")
 	serviceClient    *azblob.Client
 	containerName    = "videos"
 )
 
 func storageSetup() {
 	var err error
-	fmt.Println(connectionString)
+	connectionString := os.Getenv("AZURE_STORAGE_CONNECTION_STRING")
 	serviceClient, err = azblob.NewClientFromConnectionString(connectionString, nil)
 	if err != nil {
 		log.Fatalf("Failed to create Storage Client: %v", err)

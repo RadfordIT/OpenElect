@@ -4,6 +4,7 @@ endelectiontime: "2025-01-09"
 indeximage: https://nexus.radford.act.edu.au/storage/image.php?size=maxsize&hash=fec05ad5d7a8d76a723545c0d1485f6f727643a6
 maxtags: 4
 maxvotes: 3
+storageProvider: local
 positions:
     acacia house captain: Acacia
     banksia house captain: Banksia
