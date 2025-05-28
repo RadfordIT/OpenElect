@@ -26,7 +26,7 @@ func main() {
 	configEditor.SetConfigType("yaml")
 	configEditor.AddConfigPath("./config")
 	configEditor.ReadInConfig()
-	storageProvider = configEditor.GetString("storageProvider")
+	storageProvider = configEditor.GetString("storageprovider")
 	fmt.Println(storageProvider)
 
 	colorsEditor = viper.New()
