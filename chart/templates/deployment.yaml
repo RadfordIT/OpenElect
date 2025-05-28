@@ -45,4 +45,4 @@ spec:
                   claimName: {{ include "chart.fullname" . }}-config-pvc
           -   name: videos
               persistentVolumeClaim:
-                  claimName: {{ include "chart.fullname" . }}-videos-pvc
+                  claimName: {{ include "chart.fullname" . }}-video-pvc
