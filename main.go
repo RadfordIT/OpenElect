@@ -27,7 +27,7 @@ func main() {
 	configEditor.AddConfigPath("./config")
 	configEditor.ReadInConfig()
 	storageProvider = configEditor.GetString("storageprovider")
-	fmt.Println(storageProvider)
+	fmt.Println("Storage Provider:", storageProvider)
 
 	colorsEditor = viper.New()
 	colorsEditor.SetConfigName("colors")
