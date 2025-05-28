@@ -35,14 +35,9 @@ spec:
         - containerPort: 8080
         resources: {}
         volumeMounts:
-        - mountPath: /OpenElect/config
-          name: colors-config
         - mountPath: /OpenElect/videos
           name: videos
       volumes:
-          -   name: colors-config
-              persistentVolumeClaim:
-                  claimName: {{ include "chart.fullname" . }}-config-pvc
           -   name: videos
               persistentVolumeClaim:
                   claimName: {{ include "chart.fullname" . }}-video-pvc
