@@ -6,8 +6,10 @@ pfp/*
 !pfp/default_pfp.jpg
 chart/templates/secret.yaml
 chart/templates/miniosecret.yaml
+chart/templates/miniosecret-prod.yaml
 *.pem
 .pem
 *.csv
 .csv
 votes.csv
+credentials.json
