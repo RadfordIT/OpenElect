@@ -30,7 +30,7 @@ parameters:
     csi.storage.k8s.io/node-stage-secret-namespace: kube-system
     csi.storage.k8s.io/node-publish-secret-name: csi-s3-secret
     csi.storage.k8s.io/node-publish-secret-namespace: kube-system
-    bucketName: openelect-videos
+    bucket: openelect
 reclaimPolicy: Delete
 ---
 # Source: csi-s3/templates/csi-s3.yaml

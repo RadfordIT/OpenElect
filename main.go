@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"math/rand"
 	"net/http"
@@ -18,7 +17,6 @@ import (
 var r *gin.Engine
 var dbpool *pgxpool.Pool
 var configEditor, colorsEditor *viper.Viper
-var storageProvider string
 
 func main() {
 	configEditor = viper.New()
@@ -26,8 +24,6 @@ func main() {
 	configEditor.SetConfigType("yaml")
 	configEditor.AddConfigPath("./config")
 	configEditor.ReadInConfig()
-	storageProvider = configEditor.GetString("storageprovider")
-	fmt.Println("Storage Provider:", storageProvider)
 
 	colorsEditor = viper.New()
 	colorsEditor.SetConfigName("colors")

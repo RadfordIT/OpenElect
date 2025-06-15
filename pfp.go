@@ -2,13 +2,14 @@ package main
 
 import (
 	"bytes"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-gonic/gin"
 	"image"
 	"image/draw"
 	"image/jpeg"
 	"image/png"
 	"net/http"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 )
 
 func cropToSquare(imageData []byte) ([]byte, error) {
@@ -53,12 +54,12 @@ func pfpRoutes() {
 	r.GET("/pfp", authMiddleware(), func(c *gin.Context) {
 		userId := c.DefaultQuery("user", "")
 		if userId != "" {
-			http.ServeFile(c.Writer, c.Request, "./pfp/"+userId+".jpg")
+			http.ServeFile(c.Writer, c.Request, "/Openelect/videos/pfp/"+userId+".jpg")
 		}
 		session := sessions.Default(c)
 		pfp := session.Get("pfp")
 		if pfp == nil {
-			pfp = "./pfp/default_pfp.jpg"
+			pfp = "/Openelect/videos/pfp/default_pfp.jpg"
 		}
 		http.ServeFile(c.Writer, c.Request, pfp.(string))
 	})
