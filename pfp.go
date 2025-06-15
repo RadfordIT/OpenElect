@@ -55,6 +55,7 @@ func pfpRoutes() {
 		userId := c.DefaultQuery("user", "")
 		if userId != "" {
 			http.ServeFile(c.Writer, c.Request, "/Openelect/videos/pfp/"+userId+".jpg")
+			return
 		}
 		session := sessions.Default(c)
 		pfp := session.Get("pfp")
