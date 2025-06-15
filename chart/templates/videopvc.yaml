@@ -8,5 +8,3 @@ spec:
     requests:
       storage: 10Gi
   storageClassName: csi-s3-minio
-  volumeAttributes:
-    bucketName: openelect-videos
