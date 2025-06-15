@@ -1,72 +1,67 @@
 adminerDeployment:
-  adminer:
-    image:
-      repository: adminer
-      tag: latest
-  replicas: 1
+    adminer:
+        image:
+            repository: adminer
+            tag: latest
+    replicas: 1
 adminerService:
-  ports:
-    - port: 8080
-      protocol: TCP
-      targetPort: 8080
-  type: NodePort
+    ports:
+        - port: 8080
+          protocol: TCP
+          targetPort: 8080
+    type: NodePort
 kubernetesClusterDomain: cluster.local
 openelectDeployment:
-  openelectWeb:
-    image:
-      repository: ghcr.io/radfordit/openelect/app
-      tag: latest
-    imagePullPolicy: Always
-  replicas: 1
+    openelectWeb:
+        image:
+            repository: ghcr.io/radfordit/openelect/app
+            tag: latest
+        imagePullPolicy: Always
+    replicas: 1
 openelectService:
-  ports:
-  - nodePort: 30081
-    port: 8080
-    targetPort: 8080
-  type: NodePort
+    ports:
+        - nodePort: 30081
+          port: 8080
+          targetPort: 8080
+    type: NodePort
 postgresDeployment:
-  postgres:
-    image:
-      repository: postgres
-      tag: "17"
-  replicas: 1
+    postgres:
+        image:
+            repository: postgres
+            tag: "17"
+    replicas: 1
 postgresService:
-  ports:
-  - port: 5432
-    protocol: TCP
-    targetPort: 5432
-  type: NodePort
+    ports:
+        - port: 5432
+          protocol: TCP
+          targetPort: 5432
+    type: NodePort
 pvc:
-  postgresPvc:
-    storageRequest: 5Gi
-  typesensePvc:
-    storageRequest: 5Gi
-  configPvc:
-    storageRequest: 1Gi
+    postgresPvc:
+        storageRequest: 5Gi
+    typesensePvc:
+        storageRequest: 5Gi
+    configPvc:
+        storageRequest: 1Gi
 typesenseDeployment:
-  replicas: 1
-  typesense:
-    args:
-    - --data-dir
-    - /data
-    - --api-key=xyz
-    - --enable-cors
-    image:
-      repository: typesense/typesense
-      tag: "27.0"
+    replicas: 1
+    typesense:
+        args:
+            - --data-dir
+            - /data
+            - --api-key=xyz
+            - --enable-cors
+        image:
+            repository: typesense/typesense
+            tag: "27.0"
 typesenseService:
-  ports:
-  - port: 8108
-    protocol: TCP
-    targetPort: 8108
-  type: NodePort
+    ports:
+        - port: 8108
+          protocol: TCP
+          targetPort: 8108
+    type: NodePort
 ingress:
-  enabled: true
-  host: localhost
-  className: "nginx"
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    kubernetes.io/proxy-body-size: "4096m"
+    host: openelect.radford.act.edu.au
 secrets:
-  secretRef: secrets
-environment: prod  # use --set environment=dev in development
+    secretRef: secrets
+environment: prod # use --set environment=dev in development
