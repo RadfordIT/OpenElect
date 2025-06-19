@@ -62,6 +62,7 @@ typesenseService:
     type: NodePort
 ingress:
     host: openelect.radford.act.edu.au
+    adminerHost: ""
 secrets:
     secretRef: secrets
 environment: prod # use --set environment=dev in development
