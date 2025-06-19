@@ -23,16 +23,4 @@ spec:
   resources:
     requests:
       storage: {{ .Values.pvc.typesensePvc.storageRequest | quote }}
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ include "chart.fullname" . }}-config-pvc
-  labels:
-  {{- include "chart.labels" . | nindent 4 }}
-spec:
-    accessModes:
-    - ReadWriteOnce
-    resources:
-      requests:
-        storage: {{ .Values.pvc.configPvc.storageRequest | quote }}
+

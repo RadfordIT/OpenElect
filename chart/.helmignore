@@ -24,3 +24,5 @@
 
 secret.yaml
 *.pem
+miniosecret.yaml
+miniosecret-prod.yaml
