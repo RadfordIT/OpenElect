@@ -34,7 +34,7 @@ postgresService:
     ports:
         - port: 5432
           protocol: TCP
-          targetPort: 5432
+          targetPort: postgres-port
     type: NodePort
 pvc:
     postgresPvc:
@@ -58,7 +58,7 @@ typesenseService:
     ports:
         - port: 8108
           protocol: TCP
-          targetPort: 8108
+          targetPort: typesense-port
     type: NodePort
 ingress:
     host: openelect.radford.act.edu.au

@@ -21,11 +21,11 @@ spec:
         env:
         - name: KUBERNETES_CLUSTER_DOMAIN
           value: {{ quote .Values.kubernetesClusterDomain }}
-        image: {{ .Values.typesenseDeployment.typesense.image.repository }}:{{ .Values.typesenseDeployment.typesense.image.tag
-          | default .Chart.AppVersion }}
+        image: {{ .Values.typesenseDeployment.typesense.image.repository }}:{{ .Values.typesenseDeployment.typesense.image.tag | default .Chart.AppVersion }}
         name: typesense
         ports:
         - containerPort: 8108
+          name: typesense-port
         resources: {}
         volumeMounts:
         - mountPath: /data
