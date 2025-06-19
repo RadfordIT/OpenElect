@@ -25,7 +25,7 @@ spec:
                             port:
                                 number: {{ index .Values.openelectService.ports 0 "port" }}
         {{- if eq .Values.environment "prod" }}
-        - host: {{ .Values.ingress.host | default "localhost" }}
+        - host: {{ .Values.ingress.adminerHost | default "localhost" }}
         {{- else }}
         - host: adminer.localhost
         {{- end }}
