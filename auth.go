@@ -186,7 +186,7 @@ func loginRoutes() {
 				c.String(http.StatusInternalServerError, "Failed to crop profile picture: %v", err)
 				return
 			}
-			err = os.WriteFile(fileName, pfp, 0644)
+			saveProfilePicture(claims["sub"].(string), pfp)
 			if err != nil {
 				c.String(http.StatusInternalServerError, "Failed to save profile picture: %v", err)
 				return
