@@ -36,10 +36,3 @@ spec:
         ports:
         - containerPort: 8080
         resources: {}
-        volumeMounts:
-        - mountPath: /OpenElect/videos
-          name: videos
-      volumes:
-          -   name: videos
-              persistentVolumeClaim:
-                  claimName: {{ include "chart.fullname" . }}-video-pvc
