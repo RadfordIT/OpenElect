@@ -1,79 +1,103 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
-	"github.com/gin-gonic/gin"
 	"log"
 	"mime/multipart"
 	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-var (
-	connectionString = os.Getenv("AZURE_STORAGE_CONNECTION_STRING")
-	serviceClient    *azblob.Client
-	containerName    = "videos"
-)
+var minioClient *minio.Client
+var bucketName = "openelect"
 
 func storageSetup() {
 	var err error
-	fmt.Println(connectionString)
-	serviceClient, err = azblob.NewClientFromConnectionString(connectionString, nil)
-	if err != nil {
-		log.Fatalf("Failed to create Storage Client: %v", err)
-	}
-	pager := serviceClient.NewListBlobsFlatPager(containerName, &azblob.ListBlobsFlatOptions{
-		Include: azblob.ListBlobsInclude{Snapshots: true, Versions: true},
+	ctx := context.Background()
+	endpoint := os.Getenv("STORAGE_URL")
+	accessKeyID := os.Getenv("STORAGE_ACCESS_KEY")
+	secretAccessKey := os.Getenv("STORAGE_SECRET_ACCESS_KEY")
+	fmt.Println("Initializing MinIO client with endpoint:", endpoint, "and credentials:", accessKeyID, secretAccessKey)
+	minioClient, err = minio.New(endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
+		Secure: false,
 	})
-
-	fmt.Println("List blobs flat:")
-	for pager.More() {
-		resp, err := pager.NextPage(context.TODO())
+	if err != nil {
+		log.Fatal("Error initializing MinIO client:", err)
+		return
+	}
+	err = minioClient.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{})
+	if err != nil {
+		exists, err := minioClient.BucketExists(ctx, bucketName)
 		if err != nil {
-			log.Fatalf("Failed to list blobs: %v", err)
+			log.Fatal("Error checking if bucket exists:", err)
+			return
 		}
-
-		for _, blob := range resp.Segment.BlobItems {
-			fmt.Println(*blob.Name)
+		if !exists {
+			log.Fatal("Bucket does not exist and could not be created:", err)
+			return
 		}
 	}
+	fmt.Println("MinIO client initialized successfully")
+}
+
+type Sizer interface {
+	Size() int64
 }
 
 func uploadVideo(filename string, video multipart.File) error {
-	_, err := serviceClient.UploadStream(context.Background(), containerName, filename, video, nil)
-	return err
+	fmt.Println("Uploading video:", filename, "Size:", video.(Sizer).Size())
+	_, err := minioClient.PutObject(
+		context.Background(),
+		bucketName,
+		"video/"+filename,
+		video,
+		video.(Sizer).Size(),
+		minio.PutObjectOptions{ContentType: "video/mp4"},
+	)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func deleteVideo(filename string) error {
-	_, err := serviceClient.DeleteBlob(context.Background(), containerName, filename, nil)
+	err := minioClient.RemoveObject(context.Background(), bucketName, "video/"+filename, minio.RemoveObjectOptions{})
 	return err
 }
 
 func getVideoRoutes() {
 	r.GET("/video/:filename", authMiddleware(), func(c *gin.Context) {
-		filename := c.Param("filename")
-		response, err := serviceClient.DownloadStream(context.Background(), containerName, filename, nil)
-		if err != nil {
-			fmt.Println(err)
-			c.String(500, "Failed to download video: %v", err)
-			return
+		if r == nil {
+			log.Panic("router is nil")
 		}
-		video := bytes.Buffer{}
-		retryReader := response.NewRetryReader(context.Background(), &azblob.RetryReaderOptions{})
-		_, err = video.ReadFrom(retryReader)
+		if minioClient == nil {
+			log.Panic("minio client is nil")
+		}
+		filename := c.Param("filename")
+		reader, err := minioClient.GetObject(context.Background(), bucketName, "video/"+filename, minio.GetObjectOptions{})
 		if err != nil {
-			fmt.Println(err)
 			c.String(500, "Failed to read video: %v", err)
 			return
 		}
-		err = retryReader.Close()
+		defer reader.Close()
+		info, err := reader.Stat()
 		if err != nil {
-			fmt.Println(err)
-			c.String(500, "Failed to close video: %v", err)
+			c.String(500, "Failed to get video info: %v", err)
 			return
 		}
-		c.Data(200, "video/mp4", video.Bytes())
+		c.DataFromReader(
+			200,
+			info.Size,
+			info.ContentType,
+			reader,
+			map[string]string{
+				"Content-Disposition": fmt.Sprintf(`attachment; filename="%s"`, info.Key),
+			},
+		)
 	})
 }

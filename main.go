@@ -1,16 +1,17 @@
 package main
 
 import (
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
-	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/spf13/viper"
 	"html/template"
 	"math/rand"
 	"net/http"
 	"slices"
 	"strings"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/spf13/viper"
 )
 
 var r *gin.Engine

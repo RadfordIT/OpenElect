@@ -1,4 +1,3 @@
-{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -6,13 +5,16 @@ metadata:
     labels:
     {{- include "chart.labels" . | nindent 4 }}
     annotations:
-    {{- with .Values.ingress.annotations }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
+        nginx.org/client-max-body-size: "4096m"
+        nginx.ingress.kubernetes.io/proxy-body-size: "4096m"
 spec:
     ingressClassName: {{ .Values.ingress.className | default "nginx" }}
     rules:
+        {{- if eq .Values.environment "prod" }}
         - host: {{ .Values.ingress.host | default "localhost" }}
+        {{- else }}
+        - host: localhost
+        {{- end }}
           http:
               paths:
                   - path: /
@@ -22,7 +24,11 @@ spec:
                             name: {{ include "chart.fullname" . }}-openelect-service
                             port:
                                 number: {{ index .Values.openelectService.ports 0 "port" }}
-        - host: adminer.{{ .Values.ingress.host | default "localhost" }}
+        {{- if eq .Values.environment "prod" }}
+        - host: {{ .Values.ingress.adminerHost | default "localhost" }}
+        {{- else }}
+        - host: adminer.localhost
+        {{- end }}
           http:
               paths:
                   - path: /
@@ -32,4 +38,3 @@ spec:
                             name: {{ include "chart.fullname" . }}-adminer-service
                             port:
                                 number: {{ index .Values.adminerService.ports 0 "port" }}
-{{- end }}
