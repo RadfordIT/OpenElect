@@ -4,15 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/coreos/go-oidc/v3/oidc"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-gonic/gin"
-	"golang.org/x/oauth2"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"slices"
+
+	"github.com/coreos/go-oidc/v3/oidc"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
+	"golang.org/x/oauth2"
 )
 
 var (
@@ -180,7 +181,7 @@ func loginRoutes() {
 				c.String(http.StatusInternalServerError, "Failed to read profile picture: %v", err)
 				return
 			}
-			fileName := "./pfp/" + claims["sub"].(string) + ".jpg"
+			fileName := "pfp/" + claims["sub"].(string) + ".jpg"
 			pfp, err := cropToSquare(profilePictureData)
 			if err != nil {
 				c.String(http.StatusInternalServerError, "Failed to crop profile picture: %v", err)
