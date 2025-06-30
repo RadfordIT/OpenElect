@@ -1,11 +1,8 @@
 {{ template "header.tmpl" }}
 <div class="md:container md:mx-auto">
     <form id="main-form" class="mt-4 mx-3 md:mx-0" action="/profile" method="post" enctype="multipart/form-data">
-        <label class="form-control">
-            <div class="label">
-                <h1 class="text-2xl font-bold mt-4">About Me</h1>
-                <p>A short description of yourself and what you stand for</p>
-            </div>
+        <fieldset class="fieldset">
+            <legend class="text-2xl font-bold mt-4">About Me</legend>
             <div class="editorcontainer">
                 <div id="editor"></div>
                 <textarea id="description" name="description" hidden></textarea>
@@ -13,17 +10,15 @@
             <div class="label">
                 <span class="label-text-alt" id="editorlabel">1500 characters remaining</span>
             </div>
-        </label>
-        <label class="form-control">
-            <div class="label">
-                <h1 class="text-2xl font-bold mt-4">Hook Statement</h1>
-            </div>
+        </fieldset>
+        <fieldset class="fieldset">
+            <legend class="text-2xl font-bold mt-4">Hook Statement</legend>
             <input required type="text" placeholder="Hook Statement" class="input input-bordered w-full"
                    name="hookstatement" id="hookstatement" value="{{ .hookstatement }}" maxlength="150">
             <div class="label">
                 <span class="label-text-alt" id="hookstatementlabel">150 characters remaining</span>
             </div>
-        </label>
+        </fieldset>
         <label class="form-control">
             <h1 class="text-2xl font-bold mt-4">Video (optional)</h1>
             <input

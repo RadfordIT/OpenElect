@@ -1,4 +1,4 @@
-/*! tailwindcss v4.1.7 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v4.1.10 | MIT License | https://tailwindcss.com */
 @layer properties;
 @layer theme, base, components, utilities;
 @layer theme {
@@ -589,59 +589,6 @@
       --btn-color: var(--color-primary);
       --btn-fg: var(--color-primary-content);
       isolation: isolate;
-    }
-  }
-  .list {
-    display: flex;
-    flex-direction: column;
-    font-size: 0.875rem;
-    :where(.list-row) {
-      --list-grid-cols: minmax(0, auto) 1fr;
-      position: relative;
-      display: grid;
-      grid-auto-flow: column;
-      gap: calc(0.25rem * 4);
-      border-radius: var(--radius-box);
-      padding: calc(0.25rem * 4);
-      word-break: break-word;
-      grid-template-columns: var(--list-grid-cols);
-      &:has(.list-col-grow:nth-child(1)) {
-        --list-grid-cols: 1fr;
-      }
-      &:has(.list-col-grow:nth-child(2)) {
-        --list-grid-cols: minmax(0, auto) 1fr;
-      }
-      &:has(.list-col-grow:nth-child(3)) {
-        --list-grid-cols: minmax(0, auto) minmax(0, auto) 1fr;
-      }
-      &:has(.list-col-grow:nth-child(4)) {
-        --list-grid-cols: minmax(0, auto) minmax(0, auto) minmax(0, auto) 1fr;
-      }
-      &:has(.list-col-grow:nth-child(5)) {
-        --list-grid-cols: minmax(0, auto) minmax(0, auto) minmax(0, auto) minmax(0, auto) 1fr;
-      }
-      &:has(.list-col-grow:nth-child(6)) {
-        --list-grid-cols: minmax(0, auto) minmax(0, auto) minmax(0, auto) minmax(0, auto)
-        minmax(0, auto) 1fr;
-      }
-      :not(.list-col-wrap) {
-        grid-row-start: 1;
-      }
-    }
-    & > :not(:last-child) {
-      &.list-row, .list-row {
-        &:after {
-          content: "";
-          border-bottom: var(--border) solid;
-          inset-inline: var(--radius-box);
-          position: absolute;
-          bottom: calc(0.25rem * 0);
-          border-color: var(--color-base-content);
-          @supports (color: color-mix(in lab, red, red)) {
-            border-color: color-mix(in oklab, var(--color-base-content) 5%, transparent);
-          }
-        }
-      }
     }
   }
   .toast {
@@ -2026,6 +1973,16 @@
   .mr-1 {
     margin-right: calc(var(--spacing) * 1);
   }
+  .fieldset-legend {
+    margin-bottom: calc(0.25rem * -1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(0.25rem * 2);
+    padding-block: calc(0.25rem * 2);
+    color: var(--color-base-content);
+    font-weight: 600;
+  }
   .footer-title {
     margin-bottom: calc(0.25rem * 2);
     text-transform: uppercase;
@@ -2223,6 +2180,14 @@
       box-shadow: none;
       background-image: none;
     }
+  }
+  .fieldset {
+    display: grid;
+    gap: calc(0.25rem * 1.5);
+    padding-block: calc(0.25rem * 1);
+    font-size: 0.75rem;
+    grid-template-columns: 1fr;
+    grid-auto-rows: max-content;
   }
   .card-actions {
     display: flex;
@@ -2574,9 +2539,6 @@
   }
   .object-cover {
     object-fit: cover;
-  }
-  .p-2 {
-    padding: calc(var(--spacing) * 2);
   }
   .p-4 {
     padding: calc(var(--spacing) * 4);

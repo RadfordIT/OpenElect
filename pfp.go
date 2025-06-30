@@ -90,6 +90,7 @@ func pfpRoutes() {
 		}
 		session := sessions.Default(c)
 		pfp := session.Get("pfp")
+		fmt.Println(pfp)
 		if pfp == nil {
 			pfp = "pfp/default_pfp.jpg"
 		}
