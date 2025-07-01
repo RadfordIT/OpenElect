@@ -20,7 +20,7 @@ var (
 	clientID     = os.Getenv("CLIENT_ID")
 	clientSecret = os.Getenv("CLIENT_SECRET")
 	tenantID     = os.Getenv("TENANT_ID")
-	redirectURL  = "http://localhost:8080/callback"
+	redirectURL  = os.Getenv("REDIRECT_URL")
 	provider     *oidc.Provider
 	oauth2Config oauth2.Config
 )
