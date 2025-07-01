@@ -2,8 +2,13 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
     name: {{ include "chart.fullname" . }}-openelect-ingress
+    {{- if .Values.labels }}
+    labels:
+    {{- toYaml .Values.labels | nindent 4 }}
+    {{- else }}
     labels:
     {{- include "chart.labels" . | nindent 4 }}
+    {{- end }}
     {{- if eq .Values.ingress.className "nginx" }}
     annotations:
         nginx.org/client-max-body-size: "4096m"
