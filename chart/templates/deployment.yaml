@@ -23,8 +23,6 @@ spec:
         {{- if eq .Values.environment "prod" }}
         - name: GIN_MODE
           value: release
-        - name: TYPESENSE_URL
-          value: {{ include "chart.fullname" . }}-typesense-service
         {{- end }}
         envFrom:
             - secretRef:
