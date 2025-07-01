@@ -4,9 +4,11 @@ metadata:
     name: {{ include "chart.fullname" . }}-openelect-ingress
     labels:
     {{- include "chart.labels" . | nindent 4 }}
+    {{- if eq .Values.ingress.className "nginx" }}
     annotations:
         nginx.org/client-max-body-size: "4096m"
         nginx.ingress.kubernetes.io/proxy-body-size: "4096m"
+    {{- end }}
 spec:
     ingressClassName: {{ .Values.ingress.className | default "nginx" }}
     rules:
