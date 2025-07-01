@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"log"
+	"os"
+
 	"github.com/typesense/typesense-go/v2/typesense"
 	"github.com/typesense/typesense-go/v2/typesense/api"
 	"github.com/typesense/typesense-go/v2/typesense/api/pointer"
-	"log"
-	"os"
 )
 
 var client *typesense.Client
@@ -63,6 +65,7 @@ func searchSetup() {
 	}
 	//client.Collection("candidates").Delete(context.Background())
 	client.Collections().Create(context.Background(), schema)
+	fmt.Println("Typesense search successfully initialized")
 }
 
 func search(query string) []Candidate {
