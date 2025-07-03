@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+	"slices"
+	"strings"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
-	"net/http"
-	"slices"
 )
 
 func profileRoutes() {
@@ -112,8 +114,8 @@ func profileRoutes() {
 				}
 				videoFilename = ""
 			} else {
-				if header.Header.Get("Content-Type") != "video/mp4" {
-					c.String(http.StatusBadRequest, "Invalid video format: only mp4 is supported")
+				if !strings.HasPrefix(header.Header.Get("Content-Type"), "video/") {
+					c.String(http.StatusBadRequest, "Invalid file format (%s): please upload a video file.", header.Header.Get("Content-Type"))
 					return
 				}
 				defer video.Close()
@@ -127,7 +129,7 @@ func profileRoutes() {
 			}
 		}
 		_, err := dbpool.Exec(context.Background(),
-			`INSERT INTO pending 
+			`INSERT INTO pending
     			(id, name, email, description, hookstatement, video, keywords, positions) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 				ON CONFLICT(id) DO UPDATE SET id = $1, name = $2, email = $3, description = $4, hookstatement = $5, video = $6, keywords = $7, positions = $8`,
 			userID, name, email, description, hookstatement, videoFilename, tags, positions,
