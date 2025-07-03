@@ -119,7 +119,7 @@ func profileRoutes() {
 					return
 				}
 				defer video.Close()
-				videoFilename = fmt.Sprintf("%s.mp4", userID)
+				videoFilename = fmt.Sprintf("pending/%s.mp4", userID)
 				err = uploadVideo(videoFilename, video)
 				if err != nil {
 					c.String(http.StatusInternalServerError, "Failed to upload video: %v", err)
