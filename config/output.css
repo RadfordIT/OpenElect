@@ -1973,16 +1973,6 @@
   .mr-1 {
     margin-right: calc(var(--spacing) * 1);
   }
-  .fieldset-legend {
-    margin-bottom: calc(0.25rem * -1);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: calc(0.25rem * 2);
-    padding-block: calc(0.25rem * 2);
-    color: var(--color-base-content);
-    font-weight: 600;
-  }
   .footer-title {
     margin-bottom: calc(0.25rem * 2);
     text-transform: uppercase;
@@ -2551,6 +2541,12 @@
   }
   .px-4 {
     padding-inline: calc(var(--spacing) * 4);
+  }
+  .py-4 {
+    padding-block: calc(var(--spacing) * 4);
+  }
+  .pt-5 {
+    padding-top: calc(var(--spacing) * 5);
   }
   .pr-4 {
     padding-right: calc(var(--spacing) * 4);

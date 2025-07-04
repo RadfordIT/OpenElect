@@ -40,7 +40,7 @@
                 Your browser does not support the video tag.
             </video>
         {{ end }}
-
+        <button type="button" class="btn mt-2" onclick="recordVideoModal.showModal()">Record Video</button>
         <h1 class="text-2xl font-bold mt-4">Tags</h1>
         <div id="tag-container" class="flex flex-wrap gap-2">
             {{ range .keywords }}
@@ -95,7 +95,17 @@
         {{ end }}
         <button type="submit" class="btn btn-success w-full mt-4">Preview Changes</button>
     </form>
-
+    <dialog id="recordVideoModal" class="modal">
+        <div class="modal-box">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="text-lg font-bold">Record a Video</h3>
+            <button id="btn-start-recording" class="btn btn-success">Start Recording</button>
+            <button id="btn-stop-recording" class="btn btn-error" disabled>Stop Recording</button>
+            <video controls autoplay playsinline id="recordVideo"></video>
+        </div>
+    </dialog>
     <template id="tag-template">
         <div class="badge badge-primary flex items-center gap-2">
             <span class="tag-label">{{"{{"}}tag{{"}}"}}</span>
@@ -105,6 +115,7 @@
     </template>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.6.2/RecordRTC.js"></script>
 <script>
     const quill = new Quill("#editor", {
         theme: "snow",
@@ -183,5 +194,57 @@
     document.getElementById("main-form").addEventListener("submit", (e) => {
         document.getElementById("description").value = quill.root.innerHTML;
     });
+
+    var video = document.getElementById('recordVideo');
+    function captureCamera(callback) {
+        navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(function(camera) {
+            callback(camera);
+        }).catch(function(error) {
+            alert('Unable to capture your camera. Please check console logs.');
+            console.error(error);
+        });
+    }
+    function stopRecordingCallback() {
+        video.src = video.srcObject = null;
+        video.muted = false;
+        video.volume = 1;
+        video.src = URL.createObjectURL(recorder.getBlob());
+        const recordedBlob = recorder.getBlob();
+        const recordedFile = new File([recordedBlob], "recorded-video.mp4", {
+            type: recordedBlob.type,
+            lastModified: Date.now()
+        });
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(recordedFile);
+        document.getElementById('videoinput').files = dataTransfer.files;
+
+        recorder.camera.stop();
+        recorder.destroy();
+        recorder = null;
+    }
+    var recorder;
+    document.getElementById('btn-start-recording').onclick = function() {
+        this.disabled = true;
+        captureCamera(function(camera) {
+            video.muted = true;
+            video.volume = 0;
+            video.srcObject = camera;
+
+            recorder = RecordRTC(camera, {
+                type: 'video'
+            });
+
+            recorder.startRecording();
+
+            // release camera on stopRecording
+            recorder.camera = camera;
+
+            document.getElementById('btn-stop-recording').disabled = false;
+        });
+    };
+    document.getElementById('btn-stop-recording').onclick = function() {
+        this.disabled = true;
+        recorder.stopRecording(stopRecordingCallback);
+    };
 </script>
 {{ template "footer.tmpl" }}
