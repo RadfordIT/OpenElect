@@ -29,17 +29,12 @@
                     id="videoinput"
             />
         </label>
-        {{ if not (eq .video "") }}
-            <div class="form-control flex flex-row items-center mt-2">
-                <input type="checkbox" class="checkbox checkbox-warning" name="deletevideo" id="deletevideo" value="true" />
-                <label class="ml-2 cursor-pointer">Delete/Replace Video</label>
-            </div>
-            <input type="hidden" name="oldvideo" value="{{ .video }}">
-            <video controls class="mt-2 max-w-full max-h-[50vh]">
-                <source src="/video/{{ .video }}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        {{ end }}
+        <button class="btn btn-error" id="deleteVideo" type="button" {{ if eq .video "" }}disabled{{ end }}>Delete Video</button>
+        <input type="hidden" name="deleteVideoFlag" id="deleteVideoFlag" value="false">
+        <video controls class="mt-2 max-w-full max-h-[50vh]" id="videoPreview">
+            <source src="/video/{{ .video }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
         <button type="button" class="btn mt-2" onclick="recordVideoModal.showModal()">Record Video</button>
         <h1 class="text-2xl font-bold mt-4">Tags</h1>
         <div id="tag-container" class="flex flex-wrap gap-2">
@@ -188,13 +183,25 @@
     });
     document.getElementById("videoinput").addEventListener("change", (e) => {
         if (e.target.files.length > 0) {
-            document.getElementById("deletevideo").checked = true;
+            document.getElementById("deleteVideo").disabled = false;
+            document.getElementById('deleteVideoFlag').value = "false";
+            const video = document.getElementById("videoPreview");
+            video.src = URL.createObjectURL(e.target.files[0]);
         }
     });
     document.getElementById("main-form").addEventListener("submit", (e) => {
         document.getElementById("description").value = quill.root.innerHTML;
     });
 
+
+    document.getElementById("deleteVideo").addEventListener("click", () => {
+        if (confirm("Are you sure you want to delete the video?")) {
+            document.getElementById("videoinput").value = "";
+            document.querySelector("video").src = "";
+            document.getElementById("deleteVideoFlag").value = "true";
+            document.getElementById("deleteVideo").disabled = true;
+        }
+    });
     var video = document.getElementById('recordVideo');
     function captureCamera(callback) {
         navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(function(camera) {
@@ -208,8 +215,9 @@
         video.src = video.srcObject = null;
         video.muted = false;
         video.volume = 1;
-        video.src = URL.createObjectURL(recorder.getBlob());
         const recordedBlob = recorder.getBlob();
+        video.src = URL.createObjectURL(recordedBlob);
+        document.getElementById("videoPreview").src = video.src;
         const recordedFile = new File([recordedBlob], "recorded-video.mp4", {
             type: recordedBlob.type,
             lastModified: Date.now()
@@ -217,6 +225,8 @@
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(recordedFile);
         document.getElementById('videoinput').files = dataTransfer.files;
+        document.getElementById('deleteVideo').disabled = false;
+        document.getElementById('deleteVideoFlag').value = "false";
 
         recorder.camera.stop();
         recorder.destroy();
