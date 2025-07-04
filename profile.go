@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+	"slices"
+	"strings"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
-	"net/http"
-	"slices"
 )
 
 func profileRoutes() {
@@ -94,40 +96,40 @@ func profileRoutes() {
 		hookstatement := c.PostForm("hookstatement")
 		tags := c.PostFormArray("tag[]")
 		positions := c.PostFormArray("position[]")
-		deleteVideoFlag := c.PostForm("deletevideo")
-		videoFilename := c.PostForm("oldvideo")
-		if deleteVideoFlag == "true" || videoFilename == "" {
-			video, header, err := c.Request.FormFile("video")
-			if err != nil && !errors.Is(err, http.ErrMissingFile) {
+		deleteVideoFlag := c.PostForm("deleteVideoFlag") == "true"
+		var videoFilename string
+		dbpool.QueryRow(context.Background(), "SELECT video FROM pending WHERE id = $1", userID).Scan(&videoFilename)
+		video, header, err := c.Request.FormFile("video")
+		if err != nil && !errors.Is(err, http.ErrMissingFile) {
+			c.String(http.StatusInternalServerError, "Failed to upload video: %v", err)
+			return
+		}
+		if errors.Is(err, http.ErrMissingFile) && !deleteVideoFlag {
+			// user didn't upload a video and didn't ask for deletion, so we keep the existing video
+		} else if deleteVideoFlag {
+			err = deleteVideo(videoFilename)
+			fmt.Println("Deleting video", videoFilename)
+			if err != nil {
+				c.String(http.StatusInternalServerError, "Failed to delete video: %v", err)
+				return
+			}
+			videoFilename = ""
+		} else {
+			if !strings.HasPrefix(header.Header.Get("Content-Type"), "video/") {
+				c.String(http.StatusBadRequest, "Invalid file format (%s): please upload a video file.", header.Header.Get("Content-Type"))
+				return
+			}
+			defer video.Close()
+			videoFilename = fmt.Sprintf("pending/%s.mp4", userID)
+			err = uploadVideo(videoFilename, video)
+			if err != nil {
 				c.String(http.StatusInternalServerError, "Failed to upload video: %v", err)
 				return
 			}
-			if errors.Is(err, http.ErrMissingFile) && videoFilename == "" {
-				// user didn't upload a video and didn't have one before, so we don't need to do anything
-			} else if errors.Is(err, http.ErrMissingFile) {
-				err = deleteVideo(videoFilename)
-				if err != nil {
-					c.String(http.StatusInternalServerError, "Failed to delete video: %v", err)
-					return
-				}
-				videoFilename = ""
-			} else {
-				if header.Header.Get("Content-Type") != "video/mp4" {
-					c.String(http.StatusBadRequest, "Invalid video format: only mp4 is supported")
-					return
-				}
-				defer video.Close()
-				videoFilename = fmt.Sprintf("%s.mp4", userID)
-				err = uploadVideo(videoFilename, video)
-				if err != nil {
-					c.String(http.StatusInternalServerError, "Failed to upload video: %v", err)
-					return
-				}
-				fmt.Println("Uploaded video to", videoFilename)
-			}
+			fmt.Println("Uploaded video to", videoFilename)
 		}
-		_, err := dbpool.Exec(context.Background(),
-			`INSERT INTO pending 
+		_, err = dbpool.Exec(context.Background(),
+			`INSERT INTO pending
     			(id, name, email, description, hookstatement, video, keywords, positions) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 				ON CONFLICT(id) DO UPDATE SET id = $1, name = $2, email = $3, description = $4, hookstatement = $5, video = $6, keywords = $7, positions = $8`,
 			userID, name, email, description, hookstatement, videoFilename, tags, positions,

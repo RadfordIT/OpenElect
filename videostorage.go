@@ -70,6 +70,21 @@ func deleteVideo(filename string) error {
 	return err
 }
 
+func acceptVideo(filename string) error {
+	_, err := minioClient.CopyObject(context.Background(), minio.CopyDestOptions{
+		Bucket: bucketName,
+		Object: "video/" + filename,
+	}, minio.CopySrcOptions{
+		Bucket: bucketName,
+		Object: "video/pending/" + filename,
+	})
+	if err != nil {
+		return err
+	}
+	err = minioClient.RemoveObject(context.Background(), bucketName, "video/pending/"+filename, minio.RemoveObjectOptions{})
+	return err
+}
+
 func getVideoRoutes() {
 	r.GET("/video/:filename", authMiddleware(), func(c *gin.Context) {
 		if r == nil {
@@ -100,4 +115,33 @@ func getVideoRoutes() {
 			},
 		)
 	})
+	r.GET("/video/pending/:filename", authMiddleware(), func(c *gin.Context) {
+			if r == nil {
+				log.Panic("router is nil")
+			}
+			if minioClient == nil {
+				log.Panic("minio client is nil")
+			}
+			filename := c.Param("filename")
+			reader, err := minioClient.GetObject(context.Background(), bucketName, "video/pending/"+filename, minio.GetObjectOptions{})
+			if err != nil {
+				c.String(500, "Failed to read video: %v", err)
+				return
+			}
+			defer reader.Close()
+			info, err := reader.Stat()
+			if err != nil {
+				c.String(500, "Failed to get video info: %v", err)
+				return
+			}
+			c.DataFromReader(
+				200,
+				info.Size,
+				info.ContentType,
+				reader,
+				map[string]string{
+					"Content-Disposition": fmt.Sprintf(`attachment; filename="%s"`, info.Key),
+				},
+			)
+		})
 }

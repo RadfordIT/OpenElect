@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -205,6 +206,25 @@ func adminRoutes() {
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to publish candidate: %v", err)
 			return
+		}
+		var videoFilename string
+		err = dbpool.QueryRow(context.Background(), "SELECT video FROM candidates WHERE name = $1", name).Scan(&videoFilename)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Failed to get video filename: %v", err)
+			return
+		}
+		if videoFilename != "" {
+			videoFilename = strings.TrimPrefix(videoFilename, "pending/")
+			err = acceptVideo(videoFilename)
+			if err != nil {
+				c.String(http.StatusInternalServerError, "Failed to accept video: %v", err)
+				return
+			}
+			_, err = dbpool.Exec(context.Background(), "UPDATE candidates SET video = $1 WHERE name = $2", videoFilename, name)
+			if err != nil {
+				c.String(http.StatusInternalServerError, "Failed to update video filename: %v", err)
+				return
+			}
 		}
 		var userId string
 		var email string

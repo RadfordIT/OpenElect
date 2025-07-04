@@ -1973,16 +1973,6 @@
   .mr-1 {
     margin-right: calc(var(--spacing) * 1);
   }
-  .fieldset-legend {
-    margin-bottom: calc(0.25rem * -1);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: calc(0.25rem * 2);
-    padding-block: calc(0.25rem * 2);
-    color: var(--color-base-content);
-    font-weight: 600;
-  }
   .footer-title {
     margin-bottom: calc(0.25rem * 2);
     text-transform: uppercase;
@@ -2446,6 +2436,9 @@
   .items-center {
     align-items: center;
   }
+  .items-end {
+    align-items: flex-end;
+  }
   .justify-between {
     justify-content: space-between;
   }
@@ -2603,10 +2596,6 @@
     color: var(--color-primary-content);
     --input-color: var(--color-primary);
   }
-  .checkbox-warning {
-    color: var(--color-warning-content);
-    --input-color: var(--color-warning);
-  }
   .text-base-content {
     color: var(--color-base-content);
   }
@@ -2671,6 +2660,10 @@
   .btn-primary {
     --btn-color: var(--color-primary);
     --btn-fg: var(--color-primary-content);
+  }
+  .btn-secondary {
+    --btn-color: var(--color-secondary);
+    --btn-fg: var(--color-secondary-content);
   }
   .btn-success {
     --btn-color: var(--color-success);
