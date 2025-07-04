@@ -1,5 +1,6 @@
 {{ template "header.tmpl" }}
 <div class="md:container md:mx-auto">
+    <a href="/admin/candidates" class="btn mt-2">Go to Candidate Review</a>
     <form action="/admin" method="post" enctype="application/x-www-form-urlencoded">
         <h1 class="text-3xl font-bold mt-3">Colors</h1>
         {{ range .colorNames }}
